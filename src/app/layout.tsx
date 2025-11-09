@@ -40,7 +40,7 @@ export default function RootLayout({
           <OptionsProvider>
             <div className="relative flex min-h-dvh flex-col bg-background">
               <Header />
-              <main className="flex-1">{children}</main>
+              <main className="flex flex-1 items-center justify-center">{children}</main>
               <Footer />
             </div>
             <Toaster />
