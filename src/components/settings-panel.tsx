@@ -22,13 +22,13 @@ import { ScrollArea } from './ui/scroll-area';
 const OPTION_KEYS = Object.keys(FORM_OPTIONS) as FormOptionKey[];
 
 const OPTION_LABELS: Record<FormOptionKey, string> = {
-    environment: "Ambiente",
-    lighting: "Iluminação",
-    subject: "Assunto Principal",
-    mood: "Humor",
-    imageSize: "Tamanho da Imagem",
-    texture: "Textura / Nível de Detalhe",
-    cameraAngle: "Ângulo da Câmera",
+    aspectRatio: "Proporção (Aspect Ratio)",
+    chaos: "Caos (Chaos)",
+    quality: "Qualidade",
+    style: "Estilo",
+    stylize: "Estilização (Stylize)",
+    version: "Versão do Midjourney",
+    camera: "Câmera / Lente",
 }
 
 export function SettingsPanel() {
