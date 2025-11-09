@@ -99,18 +99,18 @@ export function VisionWeaverForm() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       basePrompt: "",
-      aspectRatio: "n/a",
-      chaos: "n/a",
-      quality: "n/a",
-      style: "n/a",
-      stylize: "n/a",
-      version: "n/a",
-      camera: "n/a",
+      aspectRatio: "off",
+      chaos: "off",
+      quality: "off",
+      style: "off",
+      stylize: "off",
+      version: "off",
+      camera: "off",
       outputType: "midjourney",
     },
   });
 
-  const isNotApplicable = (value: string | undefined) => !value || value === 'n/a';
+  const isNotApplicable = (value: string | undefined) => !value || value === 'off';
 
   const generateMidjourneyPrompt = (values: FormValues) => {
     let prompt = values.basePrompt;
@@ -215,13 +215,13 @@ export function VisionWeaverForm() {
                 />
 
               <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-                <MidjourneySelectField control={form.control} name="version" label="Versão do Midjourney" placeholder="N/A" optionsKey="version" />
-                <MidjourneySelectField control={form.control} name="aspectRatio" label="Proporção (Aspect Ratio)" placeholder="N/A" optionsKey="aspectRatio" />
-                <MidjourneySelectField control={form.control} name="quality" label="Qualidade" placeholder="N/A" optionsKey="quality" />
-                <MidjourneySelectField control={form.control} name="chaos" label="Caos (Chaos)" placeholder="N/A" optionsKey="chaos" />
-                <MidjourneySelectField control={form.control} name="stylize" label="Estilização (Stylize)" placeholder="N/A" optionsKey="stylize" />
-                <MidjourneySelectField control={form.control} name="style" label="Estilo" placeholder="N/A" optionsKey="style" />
-                <MidjourneySelectField control={form.control} name="camera" label="Câmera / Lente" placeholder="N/A" optionsKey="camera" />
+                <MidjourneySelectField control={form.control} name="version" label="Versão do Midjourney" placeholder="OFF" optionsKey="version" />
+                <MidjourneySelectField control={form.control} name="aspectRatio" label="Proporção (Aspect Ratio)" placeholder="OFF" optionsKey="aspectRatio" />
+                <MidjourneySelectField control={form.control} name="quality" label="Qualidade" placeholder="OFF" optionsKey="quality" />
+                <MidjourneySelectField control={form.control} name="chaos" label="Caos (Chaos)" placeholder="OFF" optionsKey="chaos" />
+                <MidjourneySelectField control={form.control} name="stylize" label="Estilização (Stylize)" placeholder="OFF" optionsKey="stylize" />
+                <MidjourneySelectField control={form.control} name="style" label="Estilo" placeholder="OFF" optionsKey="style" />
+                <MidjourneySelectField control={form.control} name="camera" label="Câmera / Lente" placeholder="OFF" optionsKey="camera" />
               </div>
 
               <div className="grid grid-cols-1 items-start gap-8 pt-4 md:grid-cols-3">

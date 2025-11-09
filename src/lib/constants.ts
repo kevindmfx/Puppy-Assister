@@ -1,6 +1,6 @@
 export const FORM_OPTIONS = {
   aspectRatio: [
-    { value: 'n/a', label: 'N/A' },
+    { value: 'off', label: 'OFF' },
     { value: '1:1', label: '1:1 (Quadrado)' },
     { value: '16:9', label: '16:9 (Paisagem)' },
     { value: '9:16', label: '9:16 (Retrato)' },
@@ -9,7 +9,7 @@ export const FORM_OPTIONS = {
     { value: '2:1', label: '2:1 (Cinematográfico)' },
   ],
   chaos: [
-    { value: 'n/a', label: 'N/A' },
+    { value: 'off', label: 'OFF' },
     { value: '0', label: '0 (Consistente)' },
     { value: '10', label: '10 (Pouco variado)' },
     { value: '25', label: '25 (Variado)' },
@@ -17,13 +17,13 @@ export const FORM_OPTIONS = {
     { value: '100', label: '100 (Abstrato/Aleatório)' },
   ],
   quality: [
-    { value: 'n/a', label: 'N/A' },
+    { value: 'off', label: 'OFF' },
     { value: '.25', label: '0.25 (Rápido)' },
     { value: '.5', label: '0.5 (Meia qualidade)' },
     { value: '1', label: '1 (Padrão)' },
   ],
   style: [
-    { value: 'n/a', label: 'N/A' },
+    { value: 'off', label: 'OFF' },
     { value: 'raw', label: 'Raw' },
     { value: '4a', label: 'Estilo 4a (antigo)' },
     { value: '4b', label: 'Estilo 4b (antigo)' },
@@ -33,7 +33,7 @@ export const FORM_OPTIONS = {
     { value: 'scenic', label: 'Niji-v5 Scenic' },
   ],
   stylize: [
-    { value: 'n/a', label: 'N/A' },
+    { value: 'off', label: 'OFF' },
     { value: '0', label: '0 (Desligado)' },
     { value: '50', label: '50 (Baixo)' },
     { value: '100', label: '100 (Padrão)' },
@@ -42,7 +42,7 @@ export const FORM_OPTIONS = {
     { value: '1000', label: '1000 (Máximo)' },
   ],
   version: [
-    { value: 'n/a', label: 'N/A' },
+    { value: 'off', label: 'OFF' },
     { value: '6', label: 'V6 (Mais recente)' },
     { value: '5.2', label: 'V5.2' },
     { value: '5.1', label: 'V5.1' },
@@ -50,7 +50,7 @@ export const FORM_OPTIONS = {
     { value: 'niji-v5', label: 'Niji V5 (Anime)' },
   ],
   camera: [
-    { value: 'n/a', label: 'N/A' },
+    { value: 'off', label: 'OFF' },
     { value: 'portrait', label: 'Retrato' },
     { value: 'wide angle shot', label: 'Lente Grande Angular' },
     { value: 'macro shot', label: 'Lente Macro' },
@@ -64,5 +64,3 @@ export const FORM_OPTIONS = {
 };
 
 export type FormOptionKey = keyof typeof FORM_OPTIONS;
-
-    
