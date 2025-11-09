@@ -88,6 +88,10 @@ const DropdownMenuItem = React.forwardRef<
       className
     )}
     {...props}
+    onSelect={(event) => {
+      event.preventDefault()
+      props.onSelect?.(event)
+    }}
   />
 ))
 DropdownMenuItem.displayName = DropdownMenuPrimitive.Item.displayName
