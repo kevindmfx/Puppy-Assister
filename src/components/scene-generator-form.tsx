@@ -139,7 +139,8 @@ export function SceneGeneratorForm() {
         }
       });
 
-      scenesData[`scene ${index + 1}`] = {
+      const clipNumber = (index + 1).toString().padStart(2, '0');
+      scenesData[`clip_${clipNumber}`] = {
           prompt,
           parameters,
       };
