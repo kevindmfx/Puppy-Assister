@@ -31,6 +31,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
+import { cn } from '@/lib/utils';
 
 export function SettingsPanel() {
   const { promptOptions, sceneOptions, setPromptOptions, setSceneOptions, isLoaded } = useOptions();
@@ -38,10 +39,10 @@ export function SettingsPanel() {
   
   const [localPromptOptions, setLocalPromptOptions] = useState<FormOption[]>([]);
   const [localSceneOptions, setLocalSceneOptions] = useState<FormOption[]>([]);
-  const [mounted, setMounted] = useState(false);
+  const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
+    setIsClient(true);
   }, []);
 
   useEffect(() => {
@@ -211,27 +212,11 @@ export function SettingsPanel() {
     );
   }
 
-  if (!mounted) {
-    return (
-        <Button variant="ghost" size="icon" disabled>
-            <Settings className="h-5 w-5" />
-        </Button>
-    );
-  }
-
-  if (!isLoaded) {
-    return (
-        <Button variant="ghost" size="icon" disabled>
-            <Settings className="h-5 w-5 animate-spin" />
-        </Button>
-    );
-  }
-
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <Button variant="ghost" size="icon">
-          <Settings className="h-5 w-5" />
+        <Button variant="ghost" size="icon" disabled={!isClient || !isLoaded}>
+          <Settings className={cn("h-5 w-5", (!isLoaded && isClient) && "animate-spin")} />
           <span className="sr-only">Abrir Configurações</span>
         </Button>
       </SheetTrigger>
