@@ -57,8 +57,8 @@ const MidjourneySelectField = ({
   placeholder: string;
   optionsKey: FormOptionKey;
 }) => {
-  const { options } = useOptions();
-  const selectOptions = options[optionsKey];
+  const { promptOptions } = useOptions();
+  const selectOptions = promptOptions[optionsKey];
 
   if (!selectOptions) return null;
 
@@ -202,7 +202,7 @@ export function VisionWeaverForm() {
                     <FormControl>
                         <Textarea
                         placeholder="Ex: um astronauta surfando em uma onda cósmica"
-                        className="min-h-[100px] resize-none"
+                        className="min-h-[100px] resize-y"
                         {...field}
                         />
                     </FormControl>

@@ -24,9 +24,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { SceneFormOptionKey, SCENE_FORM_OPTIONS } from "@/lib/constants";
+import { SceneFormOptionKey } from "@/lib/constants";
 import { Clipboard, ClipboardCheck, Sparkles, PlusCircle, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useOptions } from "@/context/options-context";
 
 const sceneSchema = z.object({
   prompt: z.string().min(1, "O prompt da cena é obrigatório."),
@@ -48,7 +49,6 @@ const formSchema = z.object({
 });
 
 type FormValues = z.infer<typeof formSchema>;
-type SelectFieldNames = keyof Omit<z.infer<typeof sceneSchema>, 'prompt'>;
 
 const SceneSelectField = ({
   control,
@@ -63,7 +63,8 @@ const SceneSelectField = ({
   placeholder: string;
   optionsKey: SceneFormOptionKey;
 }) => {
-  const options = SCENE_FORM_OPTIONS[optionsKey];
+  const { sceneOptions } = useOptions();
+  const options = sceneOptions[optionsKey];
   if (!options) return null;
 
   return (
@@ -102,7 +103,20 @@ export function SceneGeneratorForm() {
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      scenes: [{ prompt: "" }],
+      scenes: [{ 
+        prompt: "",
+        cameraType: "off",
+        lens: "off",
+        timeOfDay: "off",
+        feeling: "off",
+        color: "off",
+        sceneQuality: "off",
+        sceneStyle: "off",
+        framing: "off",
+        texture: "off",
+        cameraMovement: "off",
+        fps: "off",
+      }],
     },
   });
 
@@ -155,7 +169,20 @@ export function SceneGeneratorForm() {
 
   const addScene = () => {
     if (fields.length < 8) {
-      append({ prompt: "" });
+      append({ 
+        prompt: "",
+        cameraType: "off",
+        lens: "off",
+        timeOfDay: "off",
+        feeling: "off",
+        color: "off",
+        sceneQuality: "off",
+        sceneStyle: "off",
+        framing: "off",
+        texture: "off",
+        cameraMovement: "off",
+        fps: "off",
+      });
     } else {
         toast({
             variant: 'destructive',

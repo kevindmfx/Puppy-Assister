@@ -15,15 +15,17 @@ import {
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { useOptions } from '@/context/options-context';
-import { FORM_OPTIONS, FormOptionKey } from '@/lib/constants';
+import { FormOptionKey, SceneFormOptionKey } from '@/lib/constants';
 import { useToast } from '@/hooks/use-toast';
 import { ScrollArea } from './ui/scroll-area';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 
 type Option = { value: string; label: string };
 
-const OPTION_KEYS = Object.keys(FORM_OPTIONS) as FormOptionKey[];
+const PROMPT_OPTION_KEYS: FormOptionKey[] = ['aspectRatio', 'chaos', 'quality', 'style', 'stylize', 'version', 'camera'];
+const SCENE_OPTION_KEYS: SceneFormOptionKey[] = ['cameraType', 'lens', 'timeOfDay', 'feeling', 'color', 'sceneQuality', 'sceneStyle', 'framing', 'texture', 'cameraMovement', 'fps'];
 
-const OPTION_LABELS: Record<FormOptionKey, string> = {
+const PROMPT_OPTION_LABELS: Record<FormOptionKey, string> = {
     aspectRatio: "Proporção (Aspect Ratio)",
     chaos: "Caos (Chaos)",
     quality: "Qualidade",
@@ -33,41 +35,82 @@ const OPTION_LABELS: Record<FormOptionKey, string> = {
     camera: "Câmera / Lente",
 }
 
+const SCENE_OPTION_LABELS: Record<SceneFormOptionKey, string> = {
+    cameraType: "Tipo de Câmera",
+    lens: "Lente",
+    timeOfDay: "Horário do Dia",
+    feeling: "Sentimento",
+    color: "Coloração",
+    sceneQuality: "Qualidade da Cena",
+    sceneStyle: "Estilo da Cena",
+    framing: "Enquadramento",
+    texture: "Textura",
+    cameraMovement: "Movimento da Câmera",
+    fps: "FPS",
+};
+
 export function SettingsPanel() {
-  const { options, updateOptions, isLoaded } = useOptions();
+  const { promptOptions, sceneOptions, updatePromptOptions, updateSceneOptions, isLoaded } = useOptions();
   const { toast } = useToast();
-  const [localOptions, setLocalOptions] = useState<Record<FormOptionKey, Option[]>>({} as Record<FormOptionKey, Option[]>);
+  
+  const [localPromptOptions, setLocalPromptOptions] = useState<Record<FormOptionKey, Option[]>>({} as Record<FormOptionKey, Option[]>);
+  const [localSceneOptions, setLocalSceneOptions] = useState<Record<SceneFormOptionKey, Option[]>>({} as Record<SceneFormOptionKey, Option[]>);
 
   useEffect(() => {
     if (isLoaded) {
-      setLocalOptions(options);
+      setLocalPromptOptions(promptOptions);
+      setLocalSceneOptions(sceneOptions);
     }
-  }, [isLoaded, options]);
+  }, [isLoaded, promptOptions, sceneOptions]);
 
-  const handleInputChange = (key: FormOptionKey, index: number, field: 'value' | 'label', value: string) => {
-    const updatedOptions = [...(localOptions[key] || [])];
-    if (updatedOptions[index]) {
-      updatedOptions[index] = { ...updatedOptions[index], [field]: value };
-      setLocalOptions(prev => ({...prev, [key]: updatedOptions}));
+  const handleInputChange = (type: 'prompt' | 'scene', key: string, index: number, field: 'value' | 'label', value: string) => {
+    if (type === 'prompt') {
+        const updatedOptions = [...(localPromptOptions[key as FormOptionKey] || [])];
+        if (updatedOptions[index]) {
+          updatedOptions[index] = { ...updatedOptions[index], [field]: value };
+          setLocalPromptOptions(prev => ({...prev, [key as FormOptionKey]: updatedOptions}));
+        }
+    } else {
+        const updatedOptions = [...(localSceneOptions[key as SceneFormOptionKey] || [])];
+        if (updatedOptions[index]) {
+            updatedOptions[index] = { ...updatedOptions[index], [field]: value };
+            setLocalSceneOptions(prev => ({...prev, [key as SceneFormOptionKey]: updatedOptions}));
+        }
     }
   };
   
-  const handleAddOption = (key: FormOptionKey) => {
-    const newOptions = [...(localOptions[key] || []), { value: '', label: '' }];
-    setLocalOptions(prev => ({...prev, [key]: newOptions}));
+  const handleAddOption = (type: 'prompt' | 'scene', key: string) => {
+    if (type === 'prompt') {
+        const newOptions = [...(localPromptOptions[key as FormOptionKey] || []), { value: '', label: '' }];
+        setLocalPromptOptions(prev => ({...prev, [key as FormOptionKey]: newOptions}));
+    } else {
+        const newOptions = [...(localSceneOptions[key as SceneFormOptionKey] || []), { value: '', label: '' }];
+        setLocalSceneOptions(prev => ({...prev, [key as SceneFormOptionKey]: newOptions}));
+    }
   };
   
-  const handleRemoveOption = (key: FormOptionKey, index: number) => {
-    const newOptions = [...(localOptions[key] || [])];
-    newOptions.splice(index, 1);
-    setLocalOptions(prev => ({...prev, [key]: newOptions}));
+  const handleRemoveOption = (type: 'prompt' | 'scene', key: string, index: number) => {
+    if (type === 'prompt') {
+        const newOptions = [...(localPromptOptions[key as FormOptionKey] || [])];
+        newOptions.splice(index, 1);
+        setLocalPromptOptions(prev => ({...prev, [key as FormOptionKey]: newOptions}));
+    } else {
+        const newOptions = [...(localSceneOptions[key as SceneFormOptionKey] || [])];
+        newOptions.splice(index, 1);
+        setLocalSceneOptions(prev => ({...prev, [key as SceneFormOptionKey]: newOptions}));
+    }
   };
 
   const handleSave = () => {
     try {
-        Object.entries(localOptions).forEach(([key, value]) => {
+        Object.entries(localPromptOptions).forEach(([key, value]) => {
             const validOptions = value.filter(opt => opt.value && opt.label);
-            updateOptions(key as FormOptionKey, validOptions);
+            updatePromptOptions(key as FormOptionKey, validOptions);
+        });
+
+        Object.entries(localSceneOptions).forEach(([key, value]) => {
+            const validOptions = value.filter(opt => opt.value && opt.label);
+            updateSceneOptions(key as SceneFormOptionKey, validOptions);
         });
 
         toast({
@@ -84,6 +127,49 @@ export function SettingsPanel() {
         console.error(error);
     }
   };
+
+  const renderOptionsEditor = (
+    type: 'prompt' | 'scene',
+    keys: string[],
+    labels: Record<string, string>,
+    options: Record<string, Option[]>
+  ) => (
+    <div className="space-y-6 py-6">
+      <p className="text-sm text-muted-foreground">
+        Adicione, edite ou remova as opções para cada campo do formulário.
+      </p>
+      {keys.map(key => (
+        <div key={key} className="space-y-3 rounded-md border p-4">
+          <Label className="text-base font-medium">{labels[key]}</Label>
+          <div className="space-y-2">
+            {(options[key] || []).map((option, index) => (
+              <div key={index} className="flex items-center gap-2">
+                <Input
+                  placeholder="Valor"
+                  value={option.value}
+                  onChange={(e) => handleInputChange(type, key, index, 'value', e.target.value)}
+                  className="flex-1"
+                />
+                <Input
+                  placeholder="Rótulo"
+                  value={option.label}
+                  onChange={(e) => handleInputChange(type, key, index, 'label', e.target.value)}
+                  className="flex-1"
+                />
+                <Button variant="ghost" size="icon" onClick={() => handleRemoveOption(type, key, index)}>
+                  <X className="h-4 w-4 text-destructive" />
+                </Button>
+              </div>
+            ))}
+          </div>
+          <Button variant="outline" size="sm" onClick={() => handleAddOption(type, key)}>
+            <PlusCircle className="mr-2 h-4 w-4" />
+            Adicionar Opção
+          </Button>
+        </div>
+      ))}
+    </div>
+  );
 
   if (!isLoaded) {
     return (
@@ -105,43 +191,20 @@ export function SettingsPanel() {
         <SheetHeader>
           <SheetTitle>Configurações de Opções</SheetTitle>
         </SheetHeader>
-        <ScrollArea className="h-[calc(100vh-150px)] pr-4">
-        <div className="space-y-6 py-6">
-            <p className="text-sm text-muted-foreground">
-                Adicione, edite ou remova as opções para cada campo do formulário.
-            </p>
-          {OPTION_KEYS.map(key => (
-            <div key={key} className="space-y-3 rounded-md border p-4">
-              <Label className="text-base font-medium">{OPTION_LABELS[key]}</Label>
-              <div className="space-y-2">
-                {(localOptions[key] || []).map((option, index) => (
-                  <div key={index} className="flex items-center gap-2">
-                    <Input
-                      placeholder="Valor"
-                      value={option.value}
-                      onChange={(e) => handleInputChange(key, index, 'value', e.target.value)}
-                      className="flex-1"
-                    />
-                    <Input
-                      placeholder="Rótulo"
-                      value={option.label}
-                      onChange={(e) => handleInputChange(key, index, 'label', e.target.value)}
-                      className="flex-1"
-                    />
-                    <Button variant="ghost" size="icon" onClick={() => handleRemoveOption(key, index)}>
-                      <X className="h-4 w-4 text-destructive" />
-                    </Button>
-                  </div>
-                ))}
-              </div>
-              <Button variant="outline" size="sm" onClick={() => handleAddOption(key)}>
-                <PlusCircle className="mr-2 h-4 w-4" />
-                Adicionar Opção
-              </Button>
-            </div>
-          ))}
-        </div>
-        </ScrollArea>
+        <Tabs defaultValue="prompt" className="w-full">
+            <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="prompt">Gerador de Prompt</TabsTrigger>
+                <TabsTrigger value="scene">Gerador de Cenas</TabsTrigger>
+            </TabsList>
+            <ScrollArea className="h-[calc(100vh-200px)] pr-4">
+                <TabsContent value="prompt">
+                    {renderOptionsEditor('prompt', PROMPT_OPTION_KEYS, PROMPT_OPTION_LABELS, localPromptOptions)}
+                </TabsContent>
+                <TabsContent value="scene">
+                    {renderOptionsEditor('scene', SCENE_OPTION_KEYS, SCENE_OPTION_LABELS, localSceneOptions)}
+                </TabsContent>
+            </ScrollArea>
+        </Tabs>
         <SheetFooter>
           <SheetClose asChild>
               <Button onClick={handleSave}>
