@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useEffect } from 'react';
@@ -37,6 +38,11 @@ export function SettingsPanel() {
   
   const [localPromptOptions, setLocalPromptOptions] = useState<FormOption[]>([]);
   const [localSceneOptions, setLocalSceneOptions] = useState<FormOption[]>([]);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     if (isLoaded) {
@@ -205,7 +211,7 @@ export function SettingsPanel() {
     );
   }
 
-  if (!isLoaded) {
+  if (!mounted || !isLoaded) {
     return (
         <Button variant="ghost" size="icon" disabled>
             <Settings className="h-5 w-5 animate-spin" />
