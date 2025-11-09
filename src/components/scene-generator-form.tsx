@@ -26,7 +26,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { Clipboard, ClipboardCheck, Sparkles, PlusCircle, Trash2 } from "lucide-react";
+import { Clipboard, ClipboardCheck, Sparkles, PlusCircle, Trash2, FileText } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useOptions } from "@/context/options-context";
 
@@ -73,11 +73,25 @@ const DynamicSelectField = memo(({
 
 DynamicSelectField.displayName = 'DynamicSelectField';
 
+const fullPromptPrefix = `Estrutura e Ordem: O vídeo final deve seguir estritamente a ordem sequencial das chaves principais do JSON (ex: clip_01, scene_A, etc.).
+
+Duração e Tempo: Respeite exatamente a duração especificada no campo de tempo (ex: duration_seconds) para cada clipe, garantindo a minutagem precisa do vídeo.
+
+Fidelidade ao Script: Cada segmento de vídeo deve ser gerado utilizando o texto principal (prompt) em conjunto com todos os parâmetros técnicos definidos em sua respectiva seção de parameters. Considere os parâmetros como requisitos técnicos não negociáveis (e.g., câmeras, lentes, movimento, fps).
+
+Análise e Estética da Imagem: Analise a imagem de referência fornecida a seguir. O modelo deve usar o estilo, a paleta de cores e a iluminação dessa imagem como guia estético primário para animar todas as cenas do script.
+
+Qualidade: Garanta a mais alta qualidade técnica e visual possível, conforme especificado no campo de qualidade (ex: visual_quality).
+
+Coerência: As transições entre os clipes devem ser suaves. Mantenha a coerência visual e tonal (e.g., feeling, timeOfDay) ao longo de toda a sequência, a menos que as especificações explícitas de um clipe exijam uma mudança.`;
+
 export function SceneGeneratorForm() {
   const { toast } = useToast();
   const { sceneOptions } = useOptions();
-  const [output, setOutput] = useState("");
-  const [hasCopied, setHasCopied] = useState(false);
+  const [jsonOutput, setJsonOutput] = useState("");
+  const [fullPromptOutput, setFullPromptOutput] = useState("");
+  const [hasCopiedJson, setHasCopiedJson] = useState(false);
+  const [hasCopiedFullPrompt, setHasCopiedFullPrompt] = useState(false);
 
   const { sceneSchema, defaultSceneValues, formSchema } = useMemo(() => {
     const sceneSchemaObject: { [key: string]: z.ZodType<any, any> } = {
@@ -149,20 +163,35 @@ export function SceneGeneratorForm() {
     return JSON.stringify(scenesData, null, 2);
   };
 
-  function onSubmit(values: FormValues) {
+  function onJsonSubmit(values: FormValues) {
     const generatedOutput = generateJsonOutput(values);
-    setOutput(generatedOutput);
-    setHasCopied(false);
+    setJsonOutput(generatedOutput);
+    setFullPromptOutput("");
+    setHasCopiedJson(false);
   }
 
-  const handleCopy = () => {
-    navigator.clipboard.writeText(output).then(() => {
-      setHasCopied(true);
-      toast({
-        title: "Copiado!",
-        description: "O resultado foi copiado para a área de transferência.",
-      });
-      setTimeout(() => setHasCopied(false), 2000);
+  function onFullPromptSubmit(values: FormValues) {
+    const jsonString = generateJsonOutput(values);
+    const fullPrompt = `${fullPromptPrefix}\n\n${jsonString}`;
+    setFullPromptOutput(fullPrompt);
+    setJsonOutput("");
+    setHasCopiedFullPrompt(false);
+  }
+
+  const handleCopy = (type: 'json' | 'full') => {
+    const textToCopy = type === 'json' ? jsonOutput : fullPromptOutput;
+    navigator.clipboard.writeText(textToCopy).then(() => {
+        if (type === 'json') {
+            setHasCopiedJson(true);
+            setTimeout(() => setHasCopiedJson(false), 2000);
+        } else {
+            setHasCopiedFullPrompt(true);
+            setTimeout(() => setHasCopiedFullPrompt(false), 2000);
+        }
+        toast({
+            title: "Copiado!",
+            description: "O resultado foi copiado para a área de transferência.",
+        });
     });
   };
 
@@ -189,7 +218,7 @@ export function SceneGeneratorForm() {
         </CardHeader>
         <CardContent>
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+            <form className="space-y-8">
               <Accordion type="multiple" defaultValue={['scene-0']} className="w-full space-y-4">
                 {fields.map((field, index) => (
                   <AccordionItem key={field.id} value={`scene-${index}`} className="rounded-lg border bg-card px-4 shadow-sm">
@@ -198,7 +227,7 @@ export function SceneGeneratorForm() {
                             {watchedScenes[index]?.sceneName || `Cena ${index + 1}`}
                         </AccordionTrigger>
                         {fields.length > 1 && (
-                            <Button variant="ghost" size="icon" onClick={() => remove(index)}>
+                            <Button type="button" variant="ghost" size="icon" onClick={() => remove(index)}>
                                 <Trash2 className="h-5 w-5 text-destructive" />
                             </Button>
                         )}
@@ -213,7 +242,7 @@ export function SceneGeneratorForm() {
                                 <FormLabel className="text-base">Nome da Cena (Opcional)</FormLabel>
                                 <FormControl>
                                     <Input
-                                    placeholder={`Cena ${index + 1}`}
+                                    placeholder={`Ex: Cena de Abertura`}
                                     {...formField}
                                     />
                                 </FormControl>
@@ -256,15 +285,21 @@ export function SceneGeneratorForm() {
                 ))}
               </Accordion>
               
-              <div className="flex justify-between items-center pt-4">
+              <div className="flex flex-col items-center justify-between gap-4 pt-4 md:flex-row">
                 <Button type="button" variant="outline" onClick={addScene}>
                     <PlusCircle className="mr-2 h-5 w-5" />
                     Adicionar Cena
                 </Button>
-                <Button type="submit" size="lg">
-                    <Sparkles className="mr-2 h-5 w-5" />
-                    Gerar JSON das Cenas
-                </Button>
+                <div className="flex flex-col gap-4 sm:flex-row">
+                    <Button type="button" size="lg" onClick={form.handleSubmit(onJsonSubmit)}>
+                        <Sparkles className="mr-2 h-5 w-5" />
+                        Gerar JSON das Cenas
+                    </Button>
+                     <Button type="button" size="lg" variant="secondary" onClick={form.handleSubmit(onFullPromptSubmit)}>
+                        <FileText className="mr-2 h-5 w-5" />
+                        Gerar Prompt Completo
+                    </Button>
+                </div>
               </div>
 
             </form>
@@ -272,7 +307,7 @@ export function SceneGeneratorForm() {
         </CardContent>
       </Card>
       
-      {output && (
+      {jsonOutput && (
         <Card className="mx-auto mt-8 w-full max-w-7xl shadow-lg">
             <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle className="font-headline text-2xl">
@@ -281,9 +316,9 @@ export function SceneGeneratorForm() {
                 <Button
                     variant="ghost"
                     size="icon"
-                    onClick={handleCopy}
+                    onClick={() => handleCopy('json')}
                     >
-                    {hasCopied ? (
+                    {hasCopiedJson ? (
                         <ClipboardCheck className="h-5 w-5 text-green-500" />
                     ) : (
                         <Clipboard className="h-5 w-5" />
@@ -292,7 +327,33 @@ export function SceneGeneratorForm() {
             </CardHeader>
             <CardContent>
                 <pre className="mt-2 w-full overflow-auto rounded-md bg-muted p-4">
-                    <code className="text-muted-foreground whitespace-pre-wrap">{output}</code>
+                    <code className="text-muted-foreground whitespace-pre-wrap">{jsonOutput}</code>
+                </pre>
+            </CardContent>
+        </Card>
+      )}
+
+      {fullPromptOutput && (
+        <Card className="mx-auto mt-8 w-full max-w-7xl shadow-lg">
+            <CardHeader className="flex flex-row items-center justify-between">
+                <CardTitle className="font-headline text-2xl">
+                    Seu Prompt Completo Gerado
+                </CardTitle>
+                <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => handleCopy('full')}
+                    >
+                    {hasCopiedFullPrompt ? (
+                        <ClipboardCheck className="h-5 w-5 text-green-500" />
+                    ) : (
+                        <Clipboard className="h-5 w-5" />
+                    )}
+                </Button>
+            </CardHeader>
+            <CardContent>
+                <pre className="mt-2 w-full overflow-auto rounded-md bg-muted p-4">
+                    <code className="text-muted-foreground whitespace-pre-wrap">{fullPromptOutput}</code>
                 </pre>
             </CardContent>
         </Card>
@@ -300,3 +361,5 @@ export function SceneGeneratorForm() {
     </>
   );
 }
+
+    
