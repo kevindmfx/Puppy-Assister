@@ -10,6 +10,7 @@ interface OptionsContextType {
   options: OptionsState;
   updateOptions: (key: FormOptionKey, newOptions: Option[]) => void;
   getOptionsAsString: (key: FormOptionKey) => string;
+  isLoaded: boolean;
 }
 
 const OptionsContext = createContext<OptionsContextType | undefined>(undefined);
@@ -51,15 +52,20 @@ export const OptionsProvider: React.FC<{ children: React.ReactNode }> = ({ child
   };
 
   const getOptionsAsString = (key: FormOptionKey): string => {
+    if (!options[key]) {
+        return '';
+    }
     return options[key].map(opt => `${opt.value}:${opt.label}`).join(';');
   }
 
+  // We don't render the children until the options are loaded from localStorage
+  // to prevent hydration mismatches and race conditions.
   if (!isLoaded) {
-    return null; // Or a loading spinner
+    return null;
   }
 
   return (
-    <OptionsContext.Provider value={{ options, updateOptions, getOptionsAsString }}>
+    <OptionsContext.Provider value={{ options, updateOptions, getOptionsAsString, isLoaded }}>
       {children}
     </OptionsContext.Provider>
   );

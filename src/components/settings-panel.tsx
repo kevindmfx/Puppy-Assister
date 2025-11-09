@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Settings, Save } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -32,14 +32,21 @@ const OPTION_LABELS: Record<FormOptionKey, string> = {
 }
 
 export function SettingsPanel() {
-  const { updateOptions, getOptionsAsString } = useOptions();
+  const { options, updateOptions, getOptionsAsString, isLoaded } = useOptions();
   const { toast } = useToast();
-  const [localOptions, setLocalOptions] = useState<Record<FormOptionKey, string>>(
-    OPTION_KEYS.reduce((acc, key) => {
-        acc[key] = getOptionsAsString(key);
-        return acc;
-    }, {} as Record<FormOptionKey, string>)
-  );
+  const [localOptions, setLocalOptions] = useState<Record<FormOptionKey, string>>({} as Record<FormOptionKey, string>);
+
+  useEffect(() => {
+    if (isLoaded) {
+      setLocalOptions(
+        OPTION_KEYS.reduce((acc, key) => {
+            acc[key] = getOptionsAsString(key);
+            return acc;
+        }, {} as Record<FormOptionKey, string>)
+      )
+    }
+  }, [isLoaded, getOptionsAsString, options]);
+
 
   const handleInputChange = (key: FormOptionKey, value: string) => {
     setLocalOptions(prev => ({...prev, [key]: value}));
@@ -72,6 +79,14 @@ export function SettingsPanel() {
     }
   };
 
+  if (!isLoaded) {
+    return (
+        <Button variant="ghost" size="icon" disabled>
+            <Settings className="h-5 w-5 animate-spin" />
+        </Button>
+    );
+  }
+
   return (
     <Sheet>
       <SheetTrigger asChild>
@@ -94,7 +109,7 @@ export function SettingsPanel() {
               <Label htmlFor={`options-${key}`}>{OPTION_LABELS[key]}</Label>
               <Textarea
                 id={`options-${key}`}
-                value={localOptions[key]}
+                value={localOptions[key] || ''}
                 onChange={(e) => handleInputChange(key, e.target.value)}
                 rows={4}
                 className="resize-none"
