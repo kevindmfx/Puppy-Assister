@@ -8,8 +8,8 @@ type OptionsState = FormOption[];
 interface OptionsContextType {
   promptOptions: OptionsState;
   sceneOptions: OptionsState;
-  setPromptOptions: React.Dispatch<React.SetStateAction<OptionsState>>;
-  setSceneOptions: React.Dispatch<React.SetStateAction<OptionsState>>;
+  setPromptOptions: (options: OptionsState) => void;
+  setSceneOptions: (options: OptionsState) => void;
   isLoaded: boolean;
 }
 
@@ -20,7 +20,7 @@ const isServer = typeof window === 'undefined';
 export const OptionsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [promptOptions, setPromptOptions] = useState<OptionsState>(INITIAL_PROMPT_OPTIONS);
   const [sceneOptions, setSceneOptions] = useState<OptionsState>(INITIAL_SCENE_OPTIONS);
-  const [isLoaded, setIsLoaded] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(isServer);
 
   useEffect(() => {
     if (isServer) return;
@@ -31,35 +31,56 @@ export const OptionsProvider: React.FC<{ children: React.ReactNode }> = ({ child
         const parsedOptions = JSON.parse(storedOptions);
         if (parsedOptions.promptOptions && Array.isArray(parsedOptions.promptOptions)) {
           setPromptOptions(parsedOptions.promptOptions);
+        } else {
+          setPromptOptions(INITIAL_PROMPT_OPTIONS);
         }
         if (parsedOptions.sceneOptions && Array.isArray(parsedOptions.sceneOptions)) {
           setSceneOptions(parsedOptions.sceneOptions);
+        } else {
+            setSceneOptions(INITIAL_SCENE_OPTIONS);
         }
+      } else {
+        setPromptOptions(INITIAL_PROMPT_OPTIONS);
+        setSceneOptions(INITIAL_SCENE_OPTIONS);
       }
     } catch (error) {
       console.error("Failed to parse options from localStorage", error);
       localStorage.removeItem('vision-weaver-options');
+      setPromptOptions(INITIAL_PROMPT_OPTIONS);
+      setSceneOptions(INITIAL_SCENE_OPTIONS);
     }
     setIsLoaded(true);
   }, []);
 
-  useEffect(() => {
-    if (isLoaded && !isServer) {
+  const handleSetPromptOptions = useCallback((options: OptionsState) => {
+    setPromptOptions(options);
+    if (!isServer) {
         try {
-            const allOptions = { promptOptions, sceneOptions };
-            localStorage.setItem('vision-weaver-options', JSON.stringify(allOptions));
+            const currentOptions = JSON.parse(localStorage.getItem('vision-weaver-options') || '{}');
+            const newOptions = { ...currentOptions, promptOptions: options };
+            localStorage.setItem('vision-weaver-options', JSON.stringify(newOptions));
         } catch (error) {
-            console.error("Failed to save options to localStorage", error);
+            console.error("Failed to save prompt options to localStorage", error);
         }
     }
-  }, [promptOptions, sceneOptions, isLoaded]);
+  }, []);
 
-  if (!isLoaded && !isServer) {
-    return null;
-  }
+  const handleSetSceneOptions = useCallback((options: OptionsState) => {
+    setSceneOptions(options);
+    if (!isServer) {
+        try {
+            const currentOptions = JSON.parse(localStorage.getItem('vision-weaver-options') || '{}');
+            const newOptions = { ...currentOptions, sceneOptions: options };
+            localStorage.setItem('vision-weaver-options', JSON.stringify(newOptions));
+        } catch (error) {
+            console.error("Failed to save scene options to localStorage", error);
+        }
+    }
+  }, []);
+
 
   return (
-    <OptionsContext.Provider value={{ promptOptions, sceneOptions, setPromptOptions, setSceneOptions, isLoaded }}>
+    <OptionsContext.Provider value={{ promptOptions, sceneOptions, setPromptOptions: handleSetPromptOptions, setSceneOptions: handleSetSceneOptions, isLoaded }}>
       {children}
     </OptionsContext.Provider>
   );
