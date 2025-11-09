@@ -20,7 +20,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -62,6 +61,8 @@ const MidjourneySelectField = ({
   const { options } = useOptions();
   const selectOptions = options[optionsKey];
 
+  if (!selectOptions) return null;
+
   return (
     <FormField
       control={control}
@@ -76,7 +77,7 @@ const MidjourneySelectField = ({
               </SelectTrigger>
             </FormControl>
             <SelectContent>
-              {selectOptions?.map((option) => (
+              {selectOptions.map((option) => (
                 <SelectItem key={option.value} value={option.value}>
                   {option.label}
                 </SelectItem>
@@ -176,7 +177,7 @@ export function VisionWeaverForm() {
 
   return (
     <>
-      <Card className="mx-auto w-full max-w-4xl shadow-lg">
+      <Card className="mx-auto w-full max-w-7xl shadow-lg">
         <CardHeader>
           <CardTitle className="font-headline flex items-center gap-2 text-2xl">
             <Sparkles className="h-6 w-6 text-primary" />
@@ -186,29 +187,61 @@ export function VisionWeaverForm() {
         <CardContent>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-              <FormField
-                control={form.control}
-                name="basePrompt"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-lg">Prompt Base</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        placeholder="Ex: um astronauta surfando em uma onda cósmica"
-                        className="resize-none"
-                        rows={3}
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormDescription>
-                      Esta é a ideia principal da sua imagem.
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
+                <FormField
+                  control={form.control}
+                  name="basePrompt"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-lg">Prompt Base</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="Ex: um astronauta surfando em uma onda cósmica"
+                          className="resize-none"
+                          rows={showExtraDetails ? 5 : 12}
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        Esta é a ideia principal da sua imagem.
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-              <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                <div className="flex flex-col space-y-4">
+                  <div className="flex justify-start">
+                    <Button type="button" variant="ghost" onClick={() => setShowExtraDetails(!showExtraDetails)}>
+                        <PlusCircle className="mr-2 h-4 w-4" />
+                        {showExtraDetails ? 'Remover Detalhes Adicionais' : 'Adicionar Detalhes Adicionais'}
+                    </Button>
+                  </div>
+                  {showExtraDetails && (
+                    <FormField
+                        control={form.control}
+                        name="extraDetails"
+                        render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Detalhes Adicionais</FormLabel>
+                            <FormControl>
+                            <Textarea
+                                placeholder="Adicione aqui outros detalhes, separados por vírgula. Ex: arte conceitual, 8k, ultra detalhado"
+                                className="resize-none"
+                                rows={5}
+                                {...field}
+                            />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                        )}
+                    />
+                  )}
+                </div>
+              </div>
+
+
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
                 <MidjourneySelectField control={form.control} name="version" label="Versão do Midjourney" placeholder="Padrão do sistema" optionsKey="version" />
                 <MidjourneySelectField control={form.control} name="aspectRatio" label="Proporção (Aspect Ratio)" placeholder="Padrão (1:1)" optionsKey="aspectRatio" />
                 <MidjourneySelectField control={form.control} name="quality" label="Qualidade" placeholder="Padrão (1)" optionsKey="quality" />
@@ -218,82 +251,56 @@ export function VisionWeaverForm() {
                 <MidjourneySelectField control={form.control} name="camera" label="Câmera / Lente" placeholder="Selecione uma câmera ou lente" optionsKey="camera" />
               </div>
 
-              {showExtraDetails && (
-                 <FormField
-                    control={form.control}
-                    name="extraDetails"
-                    render={({ field }) => (
-                    <FormItem>
-                        <FormLabel>Detalhes Adicionais</FormLabel>
-                        <FormControl>
-                        <Textarea
-                            placeholder="Adicione aqui outros detalhes, separados por vírgula. Ex: arte conceitual, 8k, ultra detalhado"
-                            className="resize-none"
-                            {...field}
-                        />
-                        </FormControl>
-                        <FormMessage />
+              <div className="grid grid-cols-1 items-start gap-8 pt-4 md:grid-cols-3">
+                <FormField
+                  control={form.control}
+                  name="outputType"
+                  render={({ field }) => (
+                    <FormItem className="space-y-3">
+                      <FormLabel>Formato de Saída</FormLabel>
+                      <FormControl>
+                        <RadioGroup
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                          className="flex flex-col space-y-2"
+                        >
+                          <FormItem className="flex items-center space-x-3 space-y-0">
+                            <FormControl>
+                              <RadioGroupItem value="midjourney" />
+                            </FormControl>
+                            <FormLabel className="font-normal">
+                              Texto para Midjourney
+                            </FormLabel>
+                          </FormItem>
+                          <FormItem className="flex items-center space-x-3 space-y-0">
+                            <FormControl>
+                              <RadioGroupItem value="json" />
+                            </FormControl>
+                            <FormLabel className="font-normal">
+                              JSON para Gemini / Outras IAs
+                            </FormLabel>
+                          </FormItem>
+                        </RadioGroup>
+                      </FormControl>
+                      <FormMessage />
                     </FormItem>
-                    )}
+                  )}
                 />
-              )}
-
-              <div className="flex justify-start">
-                <Button type="button" variant="ghost" onClick={() => setShowExtraDetails(!showExtraDetails)}>
-                    <PlusCircle className="mr-2 h-4 w-4" />
-                    {showExtraDetails ? 'Remover Detalhes Adicionais' : 'Adicionar Detalhes Adicionais'}
-                </Button>
+                <div className="flex justify-center md:col-span-2 md:justify-end">
+                    <Button type="submit" size="lg" className="w-full md:w-auto">
+                    <Sparkles className="mr-2 h-5 w-5" />
+                    Gerar Prompt
+                    </Button>
+                </div>
               </div>
 
-              <FormField
-                control={form.control}
-                name="outputType"
-                render={({ field }) => (
-                  <FormItem className="space-y-3">
-                    <FormLabel>Formato de Saída</FormLabel>
-                    <FormControl>
-                      <RadioGroup
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                        className="flex flex-col space-y-1"
-                      >
-                        <FormItem className="flex items-center space-x-3 space-y-0">
-                          <FormControl>
-                            <RadioGroupItem value="midjourney" />
-                          </FormControl>
-                          <FormLabel className="font-normal">
-                            Texto para Midjourney
-                          </FormLabel>
-                        </FormItem>
-                        <FormItem className="flex items-center space-x-3 space-y-0">
-                          <FormControl>
-                            <RadioGroupItem value="json" />
-                          </FormControl>
-                          <FormLabel className="font-normal">
-                            JSON para Gemini / Outras IAs
-                          </FormLabel>
-                        </FormItem>
-                      </RadioGroup>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-
-              <div className="flex justify-end">
-                <Button type="submit" size="lg">
-                  <Sparkles className="mr-2 h-5 w-5" />
-                  Gerar Prompt
-                </Button>
-              </div>
             </form>
           </Form>
         </CardContent>
       </Card>
       
       {output && (
-        <Card className="mx-auto mt-8 w-full max-w-4xl shadow-lg">
+        <Card className="mx-auto mt-8 w-full max-w-7xl shadow-lg">
             <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle className="font-headline text-2xl">
                     Seu Prompt Gerado

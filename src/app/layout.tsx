@@ -7,7 +7,7 @@ import { ThemeProvider } from '@/components/theme-provider';
 import { OptionsProvider } from '@/context/options-context';
 
 export const metadata: Metadata = {
-  title: 'Tecelão de Visão',
+  title: 'Puppy Assister',
   description: 'Gere prompts JSON para criação de imagens com IA.',
 };
 
