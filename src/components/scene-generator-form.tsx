@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useMemo } from "react";
@@ -117,7 +118,9 @@ export function SceneGeneratorForm() {
   const isNotApplicable = (value: string | undefined) => !value || value === 'off';
 
   const generateJsonOutput = (values: FormValues) => {
-    const scenesData = values.scenes.map(scene => {
+    const scenesData: Record<string, any> = {};
+
+    values.scenes.forEach((scene, index) => {
       const { prompt, ...rest } = scene;
       const parameters: Record<string, string> = {};
       
@@ -129,13 +132,13 @@ export function SceneGeneratorForm() {
         }
       });
 
-      return {
+      scenesData[`scene ${index + 1}`] = {
           prompt,
           parameters,
       };
     });
     
-    return JSON.stringify({ scenes: scenesData }, null, 2);
+    return JSON.stringify(scenesData, null, 2);
   };
 
   function onSubmit(values: FormValues) {
@@ -273,3 +276,5 @@ export function SceneGeneratorForm() {
     </>
   );
 }
+
+    
