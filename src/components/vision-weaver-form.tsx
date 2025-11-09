@@ -197,8 +197,7 @@ export function VisionWeaverForm() {
                       <FormControl>
                         <Textarea
                           placeholder="Ex: um astronauta surfando em uma onda cósmica"
-                          className="resize-none"
-                          rows={showExtraDetails ? 5 : 12}
+                          className="h-32 resize-none"
                           {...field}
                         />
                       </FormControl>
@@ -209,35 +208,37 @@ export function VisionWeaverForm() {
                     </FormItem>
                   )}
                 />
-
-                <div className="flex flex-col space-y-4">
+                
+                <div className="flex flex-col space-y-2">
+                  <div className="flex-1">
+                    {showExtraDetails && (
+                        <FormField
+                            control={form.control}
+                            name="extraDetails"
+                            render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Detalhes Adicionais</FormLabel>
+                                <FormControl>
+                                <Textarea
+                                    placeholder="Adicione aqui outros detalhes, separados por vírgula. Ex: arte conceitual, 8k, ultra detalhado"
+                                    className="h-[88px] resize-none"
+                                    {...field}
+                                />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                            )}
+                        />
+                    )}
+                  </div>
                   <div className="flex justify-start">
                     <Button type="button" variant="ghost" onClick={() => setShowExtraDetails(!showExtraDetails)}>
                         <PlusCircle className="mr-2 h-4 w-4" />
                         {showExtraDetails ? 'Remover Detalhes Adicionais' : 'Adicionar Detalhes Adicionais'}
                     </Button>
                   </div>
-                  {showExtraDetails && (
-                    <FormField
-                        control={form.control}
-                        name="extraDetails"
-                        render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Detalhes Adicionais</FormLabel>
-                            <FormControl>
-                            <Textarea
-                                placeholder="Adicione aqui outros detalhes, separados por vírgula. Ex: arte conceitual, 8k, ultra detalhado"
-                                className="resize-none"
-                                rows={5}
-                                {...field}
-                            />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                        )}
-                    />
-                  )}
                 </div>
+
               </div>
 
 
