@@ -8,7 +8,7 @@ export function Header() {
         <Link href="/" className="flex items-center space-x-2">
           <Wand2 className="h-6 w-6 text-primary" />
           <span className="font-headline text-lg font-bold">
-            Vision Weaver
+            Tecelão de Visão
           </span>
         </Link>
       </div>

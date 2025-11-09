@@ -29,7 +29,7 @@ import { downloadJson } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 
 const formSchema = z.object({
-  basePrompt: z.string().min(1, "Please enter a base prompt."),
+  basePrompt: z.string().min(1, "Por favor, insira um prompt base."),
   environment: z.string().optional(),
   environment_extra: z.string().optional(),
   lighting: z.string().optional(),
@@ -91,9 +91,9 @@ const SelectField = ({
       name={`${name}_extra` as keyof FormValues}
       render={({ field }) => (
         <FormItem>
-          <FormLabel>Extra Details for {label}</FormLabel>
+          <FormLabel>Detalhes Extras para {label}</FormLabel>
           <FormControl>
-            <Input placeholder={`e.g., "with ancient ruins"`} {...field} />
+            <Input placeholder={`ex: "com ruínas antigas"`} {...field} />
           </FormControl>
           <FormMessage />
         </FormItem>
@@ -132,11 +132,11 @@ export function VisionWeaverForm() {
       )
     );
 
-    downloadJson(promptData, "vision-weaver-prompt.json");
+    downloadJson(promptData, "prompt-tecelao-de-visao.json");
 
     toast({
-      title: "JSON Generated!",
-      description: "Your prompt file has been downloaded successfully.",
+      title: "JSON Gerado!",
+      description: "Seu arquivo de prompt foi baixado com sucesso.",
     });
   }
 
@@ -145,7 +145,7 @@ export function VisionWeaverForm() {
       <CardHeader>
         <CardTitle className="font-headline flex items-center gap-2 text-2xl">
           <Sparkles className="h-6 w-6 text-primary" />
-          Create Your Image Prompt
+          Crie seu Prompt de Imagem
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -156,17 +156,17 @@ export function VisionWeaverForm() {
               name="basePrompt"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-lg">Base Prompt</FormLabel>
+                  <FormLabel className="text-lg">Prompt Base</FormLabel>
                   <FormControl>
                     <Textarea
-                      placeholder="Describe the core concept of your image..."
+                      placeholder="Descreva o conceito principal da sua imagem..."
                       className="resize-none"
                       rows={4}
                       {...field}
                     />
                   </FormControl>
                   <FormDescription>
-                    This is the foundation of your image. Be descriptive!
+                    Esta é a base da sua imagem. Seja descritivo!
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -176,57 +176,57 @@ export function VisionWeaverForm() {
             <SelectField
               control={form.control}
               name="environment"
-              label="Environment"
-              placeholder="Select an environment"
+              label="Ambiente"
+              placeholder="Selecione um ambiente"
               optionsKey="environment"
             />
             <SelectField
               control={form.control}
               name="lighting"
-              label="Lighting"
-              placeholder="Select a lighting style"
+              label="Iluminação"
+              placeholder="Selecione um estilo de iluminação"
               optionsKey="lighting"
             />
             <SelectField
               control={form.control}
               name="subject"
-              label="Subject"
-              placeholder="Select a primary subject"
+              label="Assunto Principal"
+              placeholder="Selecione um assunto principal"
               optionsKey="subject"
             />
             <SelectField
               control={form.control}
               name="mood"
-              label="Mood"
-              placeholder="Select a mood or feeling"
+              label="Humor"
+              placeholder="Selecione um humor ou sentimento"
               optionsKey="mood"
             />
             <SelectField
               control={form.control}
               name="imageSize"
-              label="Image Size"
-              placeholder="Select image dimensions"
+              label="Tamanho da Imagem"
+              placeholder="Selecione as dimensões da imagem"
               optionsKey="imageSize"
             />
             <SelectField
               control={form.control}
               name="texture"
-              label="Texture / Detail Level"
-              placeholder="Select detail level"
+              label="Textura / Nível de Detalhe"
+              placeholder="Selecione o nível de detalhe"
               optionsKey="texture"
             />
             <SelectField
               control={form.control}
               name="cameraAngle"
-              label="Camera Angle"
-              placeholder="Select a camera angle"
+              label="Ângulo da Câmera"
+              placeholder="Selecione um ângulo de câmera"
               optionsKey="cameraAngle"
             />
 
             <div className="flex justify-end">
               <Button type="submit" size="lg">
                 <Download className="mr-2 h-5 w-5" />
-                Generate & Download JSON
+                Gerar e Baixar JSON
               </Button>
             </div>
           </form>
