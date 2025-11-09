@@ -187,7 +187,7 @@ export function VisionWeaverForm() {
         <CardContent>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-              <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
+              <div className="space-y-4">
                 <FormField
                   control={form.control}
                   name="basePrompt"
@@ -197,7 +197,7 @@ export function VisionWeaverForm() {
                       <FormControl>
                         <Textarea
                           placeholder="Ex: um astronauta surfando em uma onda cósmica"
-                          className="h-32 resize-none"
+                          className="h-24 resize-none"
                           {...field}
                         />
                       </FormControl>
@@ -208,39 +208,32 @@ export function VisionWeaverForm() {
                     </FormItem>
                   )}
                 />
-                
-                <div className="flex flex-col space-y-2">
-                  <div className="flex-1">
-                    {showExtraDetails && (
-                        <FormField
-                            control={form.control}
-                            name="extraDetails"
-                            render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Detalhes Adicionais</FormLabel>
-                                <FormControl>
-                                <Textarea
-                                    placeholder="Adicione aqui outros detalhes, separados por vírgula. Ex: arte conceitual, 8k, ultra detalhado"
-                                    className="h-[88px] resize-none"
-                                    {...field}
-                                />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                            )}
-                        />
+
+                {showExtraDetails && (
+                  <FormField
+                    control={form.control}
+                    name="extraDetails"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Detalhes Adicionais</FormLabel>
+                        <FormControl>
+                          <Textarea
+                            placeholder="Adicione aqui outros detalhes, separados por vírgula. Ex: arte conceitual, 8k, ultra detalhado"
+                            className="h-24 resize-none"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
                     )}
-                  </div>
-                  <div className="flex justify-start">
-                    <Button type="button" variant="ghost" onClick={() => setShowExtraDetails(!showExtraDetails)}>
-                        <PlusCircle className="mr-2 h-4 w-4" />
-                        {showExtraDetails ? 'Remover Detalhes Adicionais' : 'Adicionar Detalhes Adicionais'}
-                    </Button>
-                  </div>
-                </div>
-
+                  />
+                )}
+                
+                <Button type="button" variant="link" className="p-0 h-auto" onClick={() => setShowExtraDetails(!showExtraDetails)}>
+                  <PlusCircle className="mr-2 h-4 w-4" />
+                  {showExtraDetails ? 'Remover Detalhes Adicionais' : 'Adicionar Detalhes Adicionais'}
+                </Button>
               </div>
-
 
               <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
                 <MidjourneySelectField control={form.control} name="version" label="Versão do Midjourney" placeholder="Padrão do sistema" optionsKey="version" />
