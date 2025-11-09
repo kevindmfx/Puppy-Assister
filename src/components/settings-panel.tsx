@@ -32,6 +32,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { cn } from '@/lib/utils';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from './ui/accordion';
 
 export function SettingsPanel() {
   const { promptOptions, sceneOptions, setPromptOptions, setSceneOptions, isLoaded } = useOptions();
@@ -127,78 +128,88 @@ export function SettingsPanel() {
         <p className="text-sm text-muted-foreground">
             Adicione, edite ou remova campos de seleção e suas respectivas opções.
         </p>
+        <Accordion type="multiple" className="w-full space-y-4">
         {localOptions.map((field, fieldIndex) => (
-          <div key={fieldIndex} className="space-y-3 rounded-md border p-4">
-            <div className="flex items-end gap-2">
-                <div className='flex-1 space-y-1'>
-                    <Label htmlFor={`field-label-${fieldIndex}`} className="text-base font-medium">Rótulo do Campo</Label>
-                    <Input
-                        id={`field-label-${fieldIndex}`}
-                        placeholder="Ex: Proporção"
-                        value={field.label}
-                        onChange={(e) => handleFieldChange(fieldIndex, 'label', e.target.value)}
-                        className="w-full"
-                    />
-                </div>
-                 <div className='flex-1 space-y-1'>
-                    <Label htmlFor={`field-key-${fieldIndex}`} className="text-base font-medium">ID Único</Label>
-                    <Input
-                        id={`field-key-${fieldIndex}`}
-                        placeholder="Ex: aspectRatio"
-                        value={field.key}
-                        onChange={(e) => handleFieldChange(fieldIndex, 'key', e.target.value)}
-                        className="w-full"
-                    />
-                </div>
-                <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                        <Button variant="destructive" size="icon">
-                            <Trash2 className="h-4 w-4" />
+          <AccordionItem key={fieldIndex} value={`field-${fieldIndex}`} className="rounded-lg border bg-card px-4 shadow-sm">
+            <div className="flex items-center">
+              <AccordionTrigger className="flex-1 text-base font-medium">
+                  {field.label || `Novo Campo ${fieldIndex + 1}`}
+              </AccordionTrigger>
+              <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                      <Button variant="ghost" size="icon">
+                          <Trash2 className="h-4 w-4 text-destructive" />
+                      </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                      <AlertDialogHeader>
+                      <AlertDialogTitle>Você tem certeza?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                          Esta ação não pode ser desfeita. Isso excluirá permanentemente este campo de seleção e todas as suas opções.
+                      </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                      <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                      <AlertDialogAction onClick={() => handleRemoveField(fieldIndex)}>Continuar</AlertDialogAction>
+                      </AlertDialogFooter>
+                  </AlertDialogContent>
+              </AlertDialog>
+            </div>
+            <AccordionContent className="pt-4">
+                <div className="space-y-4">
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                        <div className='space-y-1'>
+                            <Label htmlFor={`field-label-${fieldIndex}`}>Rótulo do Campo</Label>
+                            <Input
+                                id={`field-label-${fieldIndex}`}
+                                placeholder="Ex: Proporção"
+                                value={field.label}
+                                onChange={(e) => handleFieldChange(fieldIndex, 'label', e.target.value)}
+                            />
+                        </div>
+                        <div className='space-y-1'>
+                            <Label htmlFor={`field-key-${fieldIndex}`}>ID Único</Label>
+                            <Input
+                                id={`field-key-${fieldIndex}`}
+                                placeholder="Ex: aspectRatio"
+                                value={field.key}
+                                onChange={(e) => handleFieldChange(fieldIndex, 'key', e.target.value)}
+                            />
+                        </div>
+                    </div>
+                    
+                    <Label className='text-sm font-medium'>Opções</Label>
+                    <div className="space-y-2">
+                    {(field.options || []).map((option, optionIndex) => (
+                        <div key={optionIndex} className="flex items-center gap-2">
+                        <Input
+                            placeholder="Valor"
+                            value={option.value}
+                            onChange={(e) => handleOptionChange(fieldIndex, optionIndex, 'value', e.target.value)}
+                            className="flex-1"
+                        />
+                        <Input
+                            placeholder="Rótulo"
+                            value={option.label}
+                            onChange={(e) => handleOptionChange(fieldIndex, optionIndex, 'label', e.target.value)}
+                            className="flex-1"
+                        />
+                        <Button variant="ghost" size="icon" onClick={() => handleRemoveOption(fieldIndex, optionIndex)}>
+                            <X className="h-4 w-4 text-destructive" />
                         </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                        <AlertDialogHeader>
-                        <AlertDialogTitle>Você tem certeza?</AlertDialogTitle>
-                        <AlertDialogDescription>
-                            Esta ação não pode ser desfeita. Isso excluirá permanentemente este campo de seleção e todas as suas opções.
-                        </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                        <AlertDialogAction onClick={() => handleRemoveField(fieldIndex)}>Continuar</AlertDialogAction>
-                        </AlertDialogFooter>
-                    </AlertDialogContent>
-                </AlertDialog>
-            </div>
-
-            <Label className='text-sm'>Opções</Label>
-            <div className="space-y-2">
-              {(field.options || []).map((option, optionIndex) => (
-                <div key={optionIndex} className="flex items-center gap-2">
-                  <Input
-                    placeholder="Valor"
-                    value={option.value}
-                    onChange={(e) => handleOptionChange(fieldIndex, optionIndex, 'value', e.target.value)}
-                    className="flex-1"
-                  />
-                  <Input
-                    placeholder="Rótulo"
-                    value={option.label}
-                    onChange={(e) => handleOptionChange(fieldIndex, optionIndex, 'label', e.target.value)}
-                    className="flex-1"
-                  />
-                  <Button variant="ghost" size="icon" onClick={() => handleRemoveOption(fieldIndex, optionIndex)}>
-                    <X className="h-4 w-4 text-destructive" />
-                  </Button>
+                        </div>
+                    ))}
+                    </div>
+                    <Button variant="outline" size="sm" onClick={() => handleAddOption(fieldIndex)}>
+                    <PlusCircle className="mr-2 h-4 w-4" />
+                    Adicionar Opção
+                    </Button>
                 </div>
-              ))}
-            </div>
-            <Button variant="outline" size="sm" onClick={() => handleAddOption(fieldIndex)}>
-              <PlusCircle className="mr-2 h-4 w-4" />
-              Adicionar Opção
-            </Button>
-          </div>
+            </AccordionContent>
+          </AccordionItem>
         ))}
+        </Accordion>
+
         <Button variant="outline" className="w-full" onClick={handleAddField}>
             <PlusCircle className="mr-2 h-4 w-4" />
             Adicionar Novo Campo de Seleção
@@ -228,7 +239,7 @@ export function SettingsPanel() {
           <SheetTitle>Opções - {panelTitle}</SheetTitle>
         </SheetHeader>
         <ScrollArea className="h-[calc(100vh-140px)] pr-4">
-            {renderOptionsEditor()}
+            {isLoaded ? renderOptionsEditor() : <p>Carregando...</p>}
         </ScrollArea>
         <SheetFooter>
           <SheetClose asChild>
