@@ -21,6 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -78,9 +79,11 @@ export function SceneGeneratorForm() {
 
   const { sceneSchema, defaultSceneValues, formSchema } = useMemo(() => {
     const sceneSchemaObject: { [key: string]: z.ZodType<any, any> } = {
+        sceneName: z.string().optional(),
         prompt: z.string().min(1, "O prompt da cena é obrigatório."),
     };
-    const defaultSceneVals: { [key: string]: string } = {
+    const defaultSceneVals: { [key: string]: any } = {
+        sceneName: "",
         prompt: "",
     };
 
@@ -114,6 +117,8 @@ export function SceneGeneratorForm() {
     control: form.control,
     name: "scenes",
   });
+  
+  const watchedScenes = form.watch("scenes");
 
   const isNotApplicable = (value: string | undefined) => !value || value === 'off';
 
@@ -121,7 +126,7 @@ export function SceneGeneratorForm() {
     const scenesData: Record<string, any> = {};
 
     values.scenes.forEach((scene, index) => {
-      const { prompt, ...rest } = scene;
+      const { prompt, sceneName, ...rest } = scene;
       const parameters: Record<string, string> = {};
       
       sceneOptions.forEach(option => {
@@ -187,7 +192,7 @@ export function SceneGeneratorForm() {
                   <AccordionItem key={field.id} value={`scene-${index}`} className="rounded-lg border bg-card px-4 shadow-sm">
                     <div className="flex items-center">
                         <AccordionTrigger className="flex-1 text-lg font-medium">
-                            Cena {index + 1}
+                            {watchedScenes[index]?.sceneName || `Cena ${index + 1}`}
                         </AccordionTrigger>
                         {fields.length > 1 && (
                             <Button variant="ghost" size="icon" onClick={() => remove(index)}>
@@ -197,6 +202,22 @@ export function SceneGeneratorForm() {
                     </div>
                     <AccordionContent className="pt-4">
                       <div className="space-y-6">
+                        <FormField
+                            control={form.control}
+                            name={`scenes.${index}.sceneName`}
+                            render={({ field: formField }) => (
+                                <FormItem>
+                                <FormLabel className="text-base">Nome da Cena (Opcional)</FormLabel>
+                                <FormControl>
+                                    <Input
+                                    placeholder={`Cena ${index + 1}`}
+                                    {...formField}
+                                    />
+                                </FormControl>
+                                <FormMessage />
+                                </FormItem>
+                            )}
+                        />
                         <FormField
                           control={form.control}
                           name={`scenes.${index}.prompt`}
@@ -276,5 +297,3 @@ export function SceneGeneratorForm() {
     </>
   );
 }
-
-    
