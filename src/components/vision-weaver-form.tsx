@@ -24,7 +24,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FormOptionKey } from "@/lib/constants";
-import { Clipboard, ClipboardCheck, Sparkles, PlusCircle } from "lucide-react";
+import { Clipboard, ClipboardCheck, Sparkles } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useOptions } from "@/context/options-context";
 import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
@@ -38,7 +38,6 @@ const formSchema = z.object({
   stylize: z.string().optional(),
   version: z.string().optional(),
   camera: z.string().optional(),
-  extraDetails: z.string().optional(),
   outputType: z.enum(['midjourney', 'json']).default('midjourney'),
 });
 
@@ -95,7 +94,6 @@ export function VisionWeaverForm() {
   const { toast } = useToast();
   const [output, setOutput] = useState("");
   const [hasCopied, setHasCopied] = useState(false);
-  const [showExtraDetails, setShowExtraDetails] = useState(false);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -108,7 +106,6 @@ export function VisionWeaverForm() {
       stylize: "n/a",
       version: "n/a",
       camera: "n/a",
-      extraDetails: "",
       outputType: "midjourney",
     },
   });
@@ -117,9 +114,6 @@ export function VisionWeaverForm() {
 
   const generateMidjourneyPrompt = (values: FormValues) => {
     let prompt = values.basePrompt;
-    if (values.extraDetails) {
-        prompt += `, ${values.extraDetails}`;
-    }
     if (!isNotApplicable(values.camera)) {
         prompt += `, ${values.camera}`;
     }
@@ -145,12 +139,22 @@ export function VisionWeaverForm() {
   };
   
   const generateJsonOutput = (values: FormValues) => {
-    const { basePrompt, outputType, ...params } = values;
+    const { basePrompt, outputType, ...rest } = values;
+    const parameters: Record<string, string> = {};
+    
+    // Explicitly type the keys to match the form values
+    const paramKeys: (keyof typeof rest)[] = ['aspectRatio', 'chaos', 'quality', 'style', 'stylize', 'version', 'camera'];
+
+    paramKeys.forEach(key => {
+        const value = rest[key];
+        if (!isNotApplicable(value)) {
+            parameters[key] = value!;
+        }
+    });
+
     const promptData = {
         prompt: basePrompt,
-        parameters: Object.fromEntries(
-            Object.entries(params).filter(([, value]) => !isNotApplicable(value))
-        )
+        parameters: parameters,
     };
     return JSON.stringify(promptData, null, 2);
   };
@@ -189,57 +193,26 @@ export function VisionWeaverForm() {
         <CardContent>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-              <div className="grid grid-cols-1 gap-x-8 gap-y-4 md:grid-cols-2">
-                <div className="flex flex-col space-y-2">
-                    <FormField
-                    control={form.control}
-                    name="basePrompt"
-                    render={({ field }) => (
-                        <FormItem className="flex flex-1 flex-col">
-                        <FormLabel className="text-lg">Prompt Base</FormLabel>
-                        <FormControl>
-                            <Textarea
-                            placeholder="Ex: um astronauta surfando em uma onda cósmica"
-                            className="min-h-[140px] flex-1 resize-none"
-                            {...field}
-                            />
-                        </FormControl>
-                        <FormDescription className="mt-auto pt-2">
-                            Esta é a ideia principal da sua imagem.
-                        </FormDescription>
-                        <FormMessage />
-                        </FormItem>
-                    )}
-                    />
-                    <div className="mt-auto">
-                        <Button type="button" variant="link" className="h-auto p-0" onClick={() => setShowExtraDetails(!showExtraDetails)}>
-                            <PlusCircle className="mr-2 h-4 w-4" />
-                            {showExtraDetails ? 'Remover Detalhes Adicionais' : 'Adicionar Detalhes Adicionais'}
-                        </Button>
-                    </div>
-                </div>
-                 <div className="flex flex-col space-y-2">
-                    {showExtraDetails && (
-                    <FormField
-                        control={form.control}
-                        name="extraDetails"
-                        render={({ field }) => (
-                        <FormItem className="flex flex-grow flex-col">
-                            <FormLabel>Detalhes Adicionais</FormLabel>
-                            <FormControl>
-                            <Textarea
-                                placeholder="Adicione aqui outros detalhes, separados por vírgula. Ex: arte conceitual, 8k, ultra detalhado"
-                                className="min-h-[140px] flex-1 resize-none"
-                                {...field}
-                            />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                        )}
-                    />
-                    )}
-                </div>
-              </div>
+                <FormField
+                control={form.control}
+                name="basePrompt"
+                render={({ field }) => (
+                    <FormItem>
+                    <FormLabel className="text-lg">Prompt Base</FormLabel>
+                    <FormControl>
+                        <Textarea
+                        placeholder="Ex: um astronauta surfando em uma onda cósmica"
+                        className="min-h-[100px] resize-none"
+                        {...field}
+                        />
+                    </FormControl>
+                    <FormDescription>
+                        Esta é a ideia principal da sua imagem.
+                    </FormDescription>
+                    <FormMessage />
+                    </FormItem>
+                )}
+                />
 
               <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
                 <MidjourneySelectField control={form.control} name="version" label="Versão do Midjourney" placeholder="N/A" optionsKey="version" />
@@ -327,5 +300,3 @@ export function VisionWeaverForm() {
     </>
   );
 }
-
-    
