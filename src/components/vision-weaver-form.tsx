@@ -76,7 +76,7 @@ const MidjourneySelectField = ({
               </SelectTrigger>
             </FormControl>
             <SelectContent>
-              {selectOptions.map((option) => (
+              {selectOptions?.map((option) => (
                 <SelectItem key={option.value} value={option.value}>
                   {option.label}
                 </SelectItem>
