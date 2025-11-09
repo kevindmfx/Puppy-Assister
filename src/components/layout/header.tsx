@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { Wand2 } from 'lucide-react';
+import { ModeToggle } from '../mode-toggle';
 
 export function Header() {
   return (
@@ -11,6 +12,9 @@ export function Header() {
             Tecelão de Visão
           </span>
         </Link>
+        <div className="flex flex-1 items-center justify-end">
+          <ModeToggle />
+        </div>
       </div>
     </header>
   );
