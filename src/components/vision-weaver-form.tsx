@@ -101,42 +101,44 @@ export function VisionWeaverForm() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       basePrompt: "",
-      aspectRatio: "",
-      chaos: "",
-      quality: "",
-      style: "",
-      stylize: "",
-      version: "",
-      camera: "",
+      aspectRatio: "n/a",
+      chaos: "n/a",
+      quality: "n/a",
+      style: "n/a",
+      stylize: "n/a",
+      version: "n/a",
+      camera: "n/a",
       extraDetails: "",
       outputType: "midjourney",
     },
   });
+
+  const isNotApplicable = (value: string | undefined) => !value || value === 'n/a';
 
   const generateMidjourneyPrompt = (values: FormValues) => {
     let prompt = values.basePrompt;
     if (values.extraDetails) {
         prompt += `, ${values.extraDetails}`;
     }
-    if (values.camera) {
+    if (!isNotApplicable(values.camera)) {
         prompt += `, ${values.camera}`;
     }
-    if (values.aspectRatio) {
+    if (!isNotApplicable(values.aspectRatio)) {
       prompt += ` --ar ${values.aspectRatio}`;
     }
-    if (values.chaos) {
+    if (!isNotApplicable(values.chaos)) {
       prompt += ` --c ${values.chaos}`;
     }
-    if (values.quality) {
+    if (!isNotApplicable(values.quality)) {
       prompt += ` --q ${values.quality}`;
     }
-    if (values.style) {
+    if (!isNotApplicable(values.style)) {
         prompt += ` --style ${values.style}`;
     }
-    if (values.stylize) {
+    if (!isNotApplicable(values.stylize)) {
       prompt += ` --s ${values.stylize}`;
     }
-    if (values.version) {
+    if (!isNotApplicable(values.version)) {
       prompt += ` --v ${values.version}`;
     }
     return prompt.trim();
@@ -147,7 +149,7 @@ export function VisionWeaverForm() {
     const promptData = {
         prompt: basePrompt,
         parameters: Object.fromEntries(
-            Object.entries(params).filter(([, value]) => value !== "" && value !== undefined)
+            Object.entries(params).filter(([, value]) => value !== "" && value !== undefined && value !== "n/a")
         )
     };
     return JSON.stringify(promptData, null, 2);
@@ -187,62 +189,64 @@ export function VisionWeaverForm() {
         <CardContent>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-              <div className="space-y-4">
+              <div className="grid grid-cols-1 gap-x-8 gap-y-4 md:grid-cols-2">
                 <FormField
                   control={form.control}
                   name="basePrompt"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="flex flex-col">
                       <FormLabel className="text-lg">Prompt Base</FormLabel>
                       <FormControl>
                         <Textarea
                           placeholder="Ex: um astronauta surfando em uma onda cósmica"
-                          className="h-24 resize-none"
+                          className="h-24 min-h-[96px] resize-none"
                           {...field}
                         />
                       </FormControl>
-                      <FormDescription>
+                      <FormDescription className="mt-auto pt-2">
                         Esta é a ideia principal da sua imagem.
                       </FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-
-                {showExtraDetails && (
-                  <FormField
-                    control={form.control}
-                    name="extraDetails"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Detalhes Adicionais</FormLabel>
-                        <FormControl>
-                          <Textarea
-                            placeholder="Adicione aqui outros detalhes, separados por vírgula. Ex: arte conceitual, 8k, ultra detalhado"
-                            className="h-24 resize-none"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
+                 <div className="flex flex-col space-y-2">
+                    {showExtraDetails && (
+                    <FormField
+                        control={form.control}
+                        name="extraDetails"
+                        render={({ field }) => (
+                        <FormItem className="flex flex-col flex-grow">
+                            <FormLabel>Detalhes Adicionais</FormLabel>
+                            <FormControl>
+                            <Textarea
+                                placeholder="Adicione aqui outros detalhes, separados por vírgula. Ex: arte conceitual, 8k, ultra detalhado"
+                                className="h-24 min-h-[96px] resize-none"
+                                {...field}
+                            />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                        )}
+                    />
                     )}
-                  />
-                )}
-                
-                <Button type="button" variant="link" className="p-0 h-auto" onClick={() => setShowExtraDetails(!showExtraDetails)}>
-                  <PlusCircle className="mr-2 h-4 w-4" />
-                  {showExtraDetails ? 'Remover Detalhes Adicionais' : 'Adicionar Detalhes Adicionais'}
-                </Button>
+                    <div className="mt-auto">
+                        <Button type="button" variant="link" className="p-0 h-auto" onClick={() => setShowExtraDetails(!showExtraDetails)}>
+                            <PlusCircle className="mr-2 h-4 w-4" />
+                            {showExtraDetails ? 'Remover Detalhes Adicionais' : 'Adicionar Detalhes Adicionais'}
+                        </Button>
+                    </div>
+                </div>
               </div>
 
-              <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
-                <MidjourneySelectField control={form.control} name="version" label="Versão do Midjourney" placeholder="Padrão do sistema" optionsKey="version" />
-                <MidjourneySelectField control={form.control} name="aspectRatio" label="Proporção (Aspect Ratio)" placeholder="Padrão (1:1)" optionsKey="aspectRatio" />
-                <MidjourneySelectField control={form.control} name="quality" label="Qualidade" placeholder="Padrão (1)" optionsKey="quality" />
-                <MidjourneySelectField control={form.control} name="chaos" label="Caos (Chaos)" placeholder="Padrão (0)" optionsKey="chaos" />
-                <MidjourneySelectField control={form.control} name="stylize" label="Estilização (Stylize)" placeholder="Padrão (100)" optionsKey="stylize" />
-                <MidjourneySelectField control={form.control} name="style" label="Estilo" placeholder="Padrão" optionsKey="style" />
-                <MidjourneySelectField control={form.control} name="camera" label="Câmera / Lente" placeholder="Selecione uma câmera ou lente" optionsKey="camera" />
+              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                <MidjourneySelectField control={form.control} name="version" label="Versão do Midjourney" placeholder="N/A" optionsKey="version" />
+                <MidjourneySelectField control={form.control} name="aspectRatio" label="Proporção (Aspect Ratio)" placeholder="N/A" optionsKey="aspectRatio" />
+                <MidjourneySelectField control={form.control} name="quality" label="Qualidade" placeholder="N/A" optionsKey="quality" />
+                <MidjourneySelectField control={form.control} name="chaos" label="Caos (Chaos)" placeholder="N/A" optionsKey="chaos" />
+                <MidjourneySelectField control={form.control} name="stylize" label="Estilização (Stylize)" placeholder="N/A" optionsKey="stylize" />
+                <MidjourneySelectField control={form.control} name="style" label="Estilo" placeholder="N/A" optionsKey="style" />
+                <MidjourneySelectField control={form.control} name="camera" label="Câmera / Lente" placeholder="N/A" optionsKey="camera" />
               </div>
 
               <div className="grid grid-cols-1 items-start gap-8 pt-4 md:grid-cols-3">
