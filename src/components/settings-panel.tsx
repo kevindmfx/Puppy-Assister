@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { Settings, Save, PlusCircle, X } from 'lucide-react';
+import { Settings, Save, PlusCircle, X, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Sheet,
@@ -15,103 +15,52 @@ import {
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { useOptions } from '@/context/options-context';
-import { FormOptionKey, SceneFormOptionKey } from '@/lib/constants';
+import { Option, FormOption } from '@/lib/constants';
 import { useToast } from '@/hooks/use-toast';
 import { ScrollArea } from './ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
-
-type Option = { value: string; label: string };
-
-const PROMPT_OPTION_KEYS: FormOptionKey[] = ['aspectRatio', 'chaos', 'quality', 'style', 'stylize', 'version', 'camera'];
-const SCENE_OPTION_KEYS: SceneFormOptionKey[] = ['cameraType', 'lens', 'timeOfDay', 'feeling', 'color', 'sceneQuality', 'sceneStyle', 'framing', 'texture', 'cameraMovement', 'fps'];
-
-const PROMPT_OPTION_LABELS: Record<FormOptionKey, string> = {
-    aspectRatio: "Proporção (Aspect Ratio)",
-    chaos: "Caos (Chaos)",
-    quality: "Qualidade",
-    style: "Estilo",
-    stylize: "Estilização (Stylize)",
-    version: "Versão do Midjourney",
-    camera: "Câmera / Lente",
-}
-
-const SCENE_OPTION_LABELS: Record<SceneFormOptionKey, string> = {
-    cameraType: "Tipo de Câmera",
-    lens: "Lente",
-    timeOfDay: "Horário do Dia",
-    feeling: "Sentimento",
-    color: "Coloração",
-    sceneQuality: "Qualidade da Cena",
-    sceneStyle: "Estilo da Cena",
-    framing: "Enquadramento",
-    texture: "Textura",
-    cameraMovement: "Movimento da Câmera",
-    fps: "FPS",
-};
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 
 export function SettingsPanel() {
-  const { promptOptions, sceneOptions, updatePromptOptions, updateSceneOptions, isLoaded } = useOptions();
+  const { promptOptions, sceneOptions, setPromptOptions, setSceneOptions, isLoaded } = useOptions();
   const { toast } = useToast();
   
-  const [localPromptOptions, setLocalPromptOptions] = useState<Record<FormOptionKey, Option[]>>({} as Record<FormOptionKey, Option[]>);
-  const [localSceneOptions, setLocalSceneOptions] = useState<Record<SceneFormOptionKey, Option[]>>({} as Record<SceneFormOptionKey, Option[]>);
+  const [localPromptOptions, setLocalPromptOptions] = useState<FormOption[]>([]);
+  const [localSceneOptions, setLocalSceneOptions] = useState<FormOption[]>([]);
 
   useEffect(() => {
     if (isLoaded) {
-      setLocalPromptOptions(promptOptions);
-      setLocalSceneOptions(sceneOptions);
+      setLocalPromptOptions(JSON.parse(JSON.stringify(promptOptions)));
+      setLocalSceneOptions(JSON.parse(JSON.stringify(sceneOptions)));
     }
   }, [isLoaded, promptOptions, sceneOptions]);
-
-  const handleInputChange = (type: 'prompt' | 'scene', key: string, index: number, field: 'value' | 'label', value: string) => {
-    if (type === 'prompt') {
-        const updatedOptions = [...(localPromptOptions[key as FormOptionKey] || [])];
-        if (updatedOptions[index]) {
-          updatedOptions[index] = { ...updatedOptions[index], [field]: value };
-          setLocalPromptOptions(prev => ({...prev, [key as FormOptionKey]: updatedOptions}));
-        }
-    } else {
-        const updatedOptions = [...(localSceneOptions[key as SceneFormOptionKey] || [])];
-        if (updatedOptions[index]) {
-            updatedOptions[index] = { ...updatedOptions[index], [field]: value };
-            setLocalSceneOptions(prev => ({...prev, [key as SceneFormOptionKey]: updatedOptions}));
-        }
-    }
-  };
   
-  const handleAddOption = (type: 'prompt' | 'scene', key: string) => {
-    if (type === 'prompt') {
-        const newOptions = [...(localPromptOptions[key as FormOptionKey] || []), { value: '', label: '' }];
-        setLocalPromptOptions(prev => ({...prev, [key as FormOptionKey]: newOptions}));
-    } else {
-        const newOptions = [...(localSceneOptions[key as SceneFormOptionKey] || []), { value: '', label: '' }];
-        setLocalSceneOptions(prev => ({...prev, [key as SceneFormOptionKey]: newOptions}));
-    }
-  };
-  
-  const handleRemoveOption = (type: 'prompt' | 'scene', key: string, index: number) => {
-    if (type === 'prompt') {
-        const newOptions = [...(localPromptOptions[key as FormOptionKey] || [])];
-        newOptions.splice(index, 1);
-        setLocalPromptOptions(prev => ({...prev, [key as FormOptionKey]: newOptions}));
-    } else {
-        const newOptions = [...(localSceneOptions[key as SceneFormOptionKey] || [])];
-        newOptions.splice(index, 1);
-        setLocalSceneOptions(prev => ({...prev, [key as SceneFormOptionKey]: newOptions}));
-    }
-  };
-
   const handleSave = () => {
     try {
-        Object.entries(localPromptOptions).forEach(([key, value]) => {
-            const validOptions = value.filter(opt => opt.value && opt.label);
-            updatePromptOptions(key as FormOptionKey, validOptions);
-        });
+        const validateAndFilter = (options: FormOption[]) => {
+            return options
+                .filter(field => field.key && field.label) // Remove fields with empty key or label
+                .map(field => ({
+                    ...field,
+                    options: field.options.filter(opt => opt.value && opt.label) // Remove options with empty value or label
+                }));
+        }
 
-        Object.entries(localSceneOptions).forEach(([key, value]) => {
-            const validOptions = value.filter(opt => opt.value && opt.label);
-            updateSceneOptions(key as SceneFormOptionKey, validOptions);
-        });
+        const finalPromptOptions = validateAndFilter(localPromptOptions);
+        const finalSceneOptions = validateAndFilter(localSceneOptions);
+
+        setPromptOptions(finalPromptOptions);
+        setSceneOptions(finalSceneOptions);
 
         toast({
             title: "Configurações Salvas!",
@@ -129,47 +78,132 @@ export function SettingsPanel() {
   };
 
   const renderOptionsEditor = (
-    type: 'prompt' | 'scene',
-    keys: string[],
-    labels: Record<string, string>,
-    options: Record<string, Option[]>
-  ) => (
-    <div className="space-y-6 py-6">
-      <p className="text-sm text-muted-foreground">
-        Adicione, edite ou remova as opções para cada campo do formulário.
-      </p>
-      {keys.map(key => (
-        <div key={key} className="space-y-3 rounded-md border p-4">
-          <Label className="text-base font-medium">{labels[key]}</Label>
-          <div className="space-y-2">
-            {(options[key] || []).map((option, index) => (
-              <div key={index} className="flex items-center gap-2">
-                <Input
-                  placeholder="Valor"
-                  value={option.value}
-                  onChange={(e) => handleInputChange(type, key, index, 'value', e.target.value)}
-                  className="flex-1"
-                />
-                <Input
-                  placeholder="Rótulo"
-                  value={option.label}
-                  onChange={(e) => handleInputChange(type, key, index, 'label', e.target.value)}
-                  className="flex-1"
-                />
-                <Button variant="ghost" size="icon" onClick={() => handleRemoveOption(type, key, index)}>
-                  <X className="h-4 w-4 text-destructive" />
-                </Button>
-              </div>
-            ))}
+    type: 'prompt' | 'scene'
+  ) => {
+    const isPrompt = type === 'prompt';
+    const localData = isPrompt ? localPromptOptions : localSceneOptions;
+    const setLocalData = isPrompt ? setLocalPromptOptions : setLocalSceneOptions;
+
+    const handleFieldChange = (index: number, field: 'key' | 'label', value: string) => {
+        const updatedFields = [...localData];
+        updatedFields[index] = { ...updatedFields[index], [field]: value };
+        setLocalData(updatedFields);
+    }
+
+    const handleOptionChange = (fieldIndex: number, optionIndex: number, field: 'value' | 'label', value: string) => {
+        const updatedFields = [...localData];
+        const updatedOptions = [...updatedFields[fieldIndex].options];
+        updatedOptions[optionIndex] = { ...updatedOptions[optionIndex], [field]: value };
+        updatedFields[fieldIndex].options = updatedOptions;
+        setLocalData(updatedFields);
+    };
+
+    const handleAddOption = (fieldIndex: number) => {
+        const updatedFields = [...localData];
+        updatedFields[fieldIndex].options.push({ value: '', label: '' });
+        setLocalData(updatedFields);
+    };
+
+    const handleRemoveOption = (fieldIndex: number, optionIndex: number) => {
+        const updatedFields = [...localData];
+        updatedFields[fieldIndex].options.splice(optionIndex, 1);
+        setLocalData(updatedFields);
+    };
+
+    const handleAddField = () => {
+        setLocalData([...localData, { key: '', label: '', options: [{ value: 'off', label: 'OFF' }] }]);
+    }
+
+    const handleRemoveField = (fieldIndex: number) => {
+        const updatedFields = [...localData];
+        updatedFields.splice(fieldIndex, 1);
+        setLocalData(updatedFields);
+    }
+
+    return (
+      <div className="space-y-4 py-6">
+        <p className="text-sm text-muted-foreground">
+            Adicione, edite ou remova campos de seleção e suas respectivas opções.
+        </p>
+        {localData.map((field, fieldIndex) => (
+          <div key={fieldIndex} className="space-y-3 rounded-md border p-4">
+            <div className="flex items-end gap-2">
+                <div className='flex-1 space-y-1'>
+                    <Label htmlFor={`field-label-${type}-${fieldIndex}`} className="text-base font-medium">Rótulo do Campo</Label>
+                    <Input
+                        id={`field-label-${type}-${fieldIndex}`}
+                        placeholder="Ex: Proporção"
+                        value={field.label}
+                        onChange={(e) => handleFieldChange(fieldIndex, 'label', e.target.value)}
+                        className="w-full"
+                    />
+                </div>
+                 <div className='flex-1 space-y-1'>
+                    <Label htmlFor={`field-key-${type}-${fieldIndex}`} className="text-base font-medium">ID Único</Label>
+                    <Input
+                        id={`field-key-${type}-${fieldIndex}`}
+                        placeholder="Ex: aspectRatio"
+                        value={field.key}
+                        onChange={(e) => handleFieldChange(fieldIndex, 'key', e.target.value)}
+                        className="w-full"
+                    />
+                </div>
+                <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                        <Button variant="destructive" size="icon">
+                            <Trash2 className="h-4 w-4" />
+                        </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                        <AlertDialogHeader>
+                        <AlertDialogTitle>Você tem certeza?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            Esta ação não pode ser desfeita. Isso excluirá permanentemente este campo de seleção e todas as suas opções.
+                        </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                        <AlertDialogAction onClick={() => handleRemoveField(fieldIndex)}>Continuar</AlertDialogAction>
+                        </AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialog>
+            </div>
+
+            <Label className='text-sm'>Opções</Label>
+            <div className="space-y-2">
+              {(field.options || []).map((option, optionIndex) => (
+                <div key={optionIndex} className="flex items-center gap-2">
+                  <Input
+                    placeholder="Valor"
+                    value={option.value}
+                    onChange={(e) => handleOptionChange(fieldIndex, optionIndex, 'value', e.target.value)}
+                    className="flex-1"
+                  />
+                  <Input
+                    placeholder="Rótulo"
+                    value={option.label}
+                    onChange={(e) => handleOptionChange(fieldIndex, optionIndex, 'label', e.target.value)}
+                    className="flex-1"
+                  />
+                  <Button variant="ghost" size="icon" onClick={() => handleRemoveOption(fieldIndex, optionIndex)}>
+                    <X className="h-4 w-4 text-destructive" />
+                  </Button>
+                </div>
+              ))}
+            </div>
+            <Button variant="outline" size="sm" onClick={() => handleAddOption(fieldIndex)}>
+              <PlusCircle className="mr-2 h-4 w-4" />
+              Adicionar Opção
+            </Button>
           </div>
-          <Button variant="outline" size="sm" onClick={() => handleAddOption(type, key)}>
+        ))}
+        <Button variant="outline" className="w-full" onClick={handleAddField}>
             <PlusCircle className="mr-2 h-4 w-4" />
-            Adicionar Opção
-          </Button>
-        </div>
-      ))}
-    </div>
-  );
+            Adicionar Novo Campo de Seleção
+        </Button>
+      </div>
+    );
+  }
 
   if (!isLoaded) {
     return (
@@ -198,10 +232,10 @@ export function SettingsPanel() {
             </TabsList>
             <ScrollArea className="h-[calc(100vh-200px)] pr-4">
                 <TabsContent value="prompt">
-                    {renderOptionsEditor('prompt', PROMPT_OPTION_KEYS, PROMPT_OPTION_LABELS, localPromptOptions)}
+                    {renderOptionsEditor('prompt')}
                 </TabsContent>
                 <TabsContent value="scene">
-                    {renderOptionsEditor('scene', SCENE_OPTION_KEYS, SCENE_OPTION_LABELS, localSceneOptions)}
+                    {renderOptionsEditor('scene')}
                 </TabsContent>
             </ScrollArea>
         </Tabs>

@@ -1,158 +1,243 @@
-export const FORM_OPTIONS = {
-  aspectRatio: [
-    { value: 'off', label: 'OFF' },
-    { value: '1:1', label: '1:1 (Quadrado)' },
-    { value: '16:9', label: '16:9 (Paisagem)' },
-    { value: '9:16', label: '9:16 (Retrato)' },
-    { value: '4:3', label: '4:3 (TV Clássica)' },
-    { value: '3:2', label: '3:2 (Fotografia)' },
-    { value: '2:1', label: '2:1 (Cinematográfico)' },
-  ],
-  chaos: [
-    { value: 'off', label: 'OFF' },
-    { value: '0', label: '0 (Consistente)' },
-    { value: '10', label: '10 (Pouco variado)' },
-    { value: '25', label: '25 (Variado)' },
-    { value: '50', label: '50 (Muito variado)' },
-    { value: '100', label: '100 (Abstrato/Aleatório)' },
-  ],
-  quality: [
-    { value: 'off', label: 'OFF' },
-    { value: '.25', label: '0.25 (Rápido)' },
-    { value: '.5', label: '0.5 (Meia qualidade)' },
-    { value: '1', label: '1 (Padrão)' },
-  ],
-  style: [
-    { value: 'off', label: 'OFF' },
-    { value: 'raw', label: 'Raw' },
-    { value: '4a', label: 'Estilo 4a (antigo)' },
-    { value: '4b', label: 'Estilo 4b (antigo)' },
-    { value: '4c', label: 'Estilo 4c (antigo)' },
-    { value: 'cute', label: 'Niji-v5 Cute' },
-    { value: 'expressive', label: 'Niji-v5 Expressive' },
-    { value: 'scenic', label: 'Niji-v5 Scenic' },
-  ],
-  stylize: [
-    { value: 'off', label: 'OFF' },
-    { value: '0', label: '0 (Desligado)' },
-    { value: '50', label: '50 (Baixo)' },
-    { value: '100', label: '100 (Padrão)' },
-    { value: '250', label: '250 (Alto)' },
-    { value: '500', label: '500 (Muito Alto)' },
-    { value: '1000', label: '1000 (Máximo)' },
-  ],
-  version: [
-    { value: 'off', label: 'OFF' },
-    { value: '6', label: 'V6 (Mais recente)' },
-    { value: '5.2', label: 'V5.2' },
-    { value: '5.1', label: 'V5.1' },
-    { value: 'niji-v6', label: 'Niji V6 (Anime)' },
-    { value: 'niji-v5', label: 'Niji V5 (Anime)' },
-  ],
-  camera: [
-    { value: 'off', label: 'OFF' },
-    { value: 'portrait', label: 'Retrato' },
-    { value: 'wide angle shot', label: 'Lente Grande Angular' },
-    { value: 'macro shot', label: 'Lente Macro' },
-    { value: 'telephoto shot', label: 'Lente Teleobjetiva' },
-    { value: 'drone shot', label: 'Visão de Drone' },
-    { value: 'eye-level shot', label: 'Nível do Olho' },
-    { value: 'low-angle shot', label: 'Ângulo Baixo' },
-    { value: 'high-angle shot', label: 'Ângulo Alto' },
-    { value: 'dutch angle', label: 'Ângulo Holandês' },
-  ],
+export type Option = { value: string; label: string };
+
+export type FormOption = {
+    key: string;
+    label: string;
+    options: Option[];
+}
+
+export const INITIAL_PROMPT_OPTIONS: FormOption[] = [
+    {
+        key: 'aspectRatio',
+        label: 'Proporção (Aspect Ratio)',
+        options: [
+            { value: 'off', label: 'OFF' },
+            { value: '1:1', label: '1:1 (Quadrado)' },
+            { value: '16:9', label: '16:9 (Paisagem)' },
+            { value: '9:16', label: '9:16 (Retrato)' },
+            { value: '4:3', label: '4:3 (TV Clássica)' },
+            { value: '3:2', label: '3:2 (Fotografia)' },
+            { value: '2:1', label: '2:1 (Cinematográfico)' },
+        ]
+    },
+    {
+        key: 'chaos',
+        label: 'Caos (Chaos)',
+        options: [
+            { value: 'off', label: 'OFF' },
+            { value: '0', label: '0 (Consistente)' },
+            { value: '10', label: '10 (Pouco variado)' },
+            { value: '25', label: '25 (Variado)' },
+            { value: '50', label: '50 (Muito variado)' },
+            { value: '100', label: '100 (Abstrato/Aleatório)' },
+        ]
+    },
+    {
+        key: 'quality',
+        label: 'Qualidade',
+        options: [
+            { value: 'off', label: 'OFF' },
+            { value: '.25', label: '0.25 (Rápido)' },
+            { value: '.5', label: '0.5 (Meia qualidade)' },
+            { value: '1', label: '1 (Padrão)' },
+        ]
+    },
+    {
+        key: 'style',
+        label: 'Estilo',
+        options: [
+            { value: 'off', label: 'OFF' },
+            { value: 'raw', label: 'Raw' },
+            { value: '4a', label: 'Estilo 4a (antigo)' },
+            { value: '4b', label: 'Estilo 4b (antigo)' },
+            { value: '4c', label: 'Estilo 4c (antigo)' },
+            { value: 'cute', label: 'Niji-v5 Cute' },
+            { value: 'expressive', label: 'Niji-v5 Expressive' },
+            { value: 'scenic', label: 'Niji-v5 Scenic' },
+        ]
+    },
+    {
+        key: 'stylize',
+        label: 'Estilização (Stylize)',
+        options: [
+            { value: 'off', label: 'OFF' },
+            { value: '0', label: '0 (Desligado)' },
+            { value: '50', label: '50 (Baixo)' },
+            { value: '100', label: '100 (Padrão)' },
+            { value: '250', label: '250 (Alto)' },
+            { value: '500', label: '500 (Muito Alto)' },
+            { value: '1000', label: '1000 (Máximo)' },
+        ]
+    },
+    {
+        key: 'version',
+        label: 'Versão do Midjourney',
+        options: [
+            { value: 'off', label: 'OFF' },
+            { value: '6', label: 'V6 (Mais recente)' },
+            { value: '5.2', label: 'V5.2' },
+            { value: '5.1', label: 'V5.1' },
+            { value: 'niji-v6', label: 'Niji V6 (Anime)' },
+            { value: 'niji-v5', label: 'Niji V5 (Anime)' },
+        ]
+    },
+    {
+        key: 'camera',
+        label: 'Câmera / Lente',
+        options: [
+            { value: 'off', label: 'OFF' },
+            { value: 'portrait', label: 'Retrato' },
+            { value: 'wide angle shot', label: 'Lente Grande Angular' },
+            { value: 'macro shot', label: 'Lente Macro' },
+            { value: 'telephoto shot', label: 'Lente Teleobjetiva' },
+            { value: 'drone shot', label: 'Visão de Drone' },
+            { value: 'eye-level shot', label: 'Nível do Olho' },
+            { value: 'low-angle shot', label: 'Ângulo Baixo' },
+            { value: 'high-angle shot', label: 'Ângulo Alto' },
+            { value: 'dutch angle', label: 'Ângulo Holandês' },
+        ]
+    }
+];
+
+export const INITIAL_SCENE_OPTIONS: FormOption[] = [
+    {
+        key: 'cameraType',
+        label: 'Tipo de Câmera',
+        options: [
+            { value: 'off', label: 'OFF' },
+            { value: 'cinematic', label: 'Cinematic' },
+            { value: 'documentary', label: 'Documentary' },
+            { value: 'handheld', label: 'Handheld' },
+            { value: 'static', label: 'Static' },
+        ]
+    },
+    {
+        key: 'lens',
+        label: 'Lente',
+        options: [
+            { value: 'off', label: 'OFF' },
+            { value: 'wide', label: 'Wide Angle' },
+            { value: 'telephoto', label: 'Telephoto' },
+            { value: 'fisheye', label: 'Fisheye' },
+            { value: 'macro', label: 'Macro' },
+        ]
+    },
+    {
+        key: 'timeOfDay',
+        label: 'Horário do Dia',
+        options: [
+            { value: 'off', label: 'OFF' },
+            { value: 'day', label: 'Day' },
+            { value: 'night', label: 'Night' },
+            { value: 'golden hour', label: 'Golden Hour' },
+            { value: 'blue hour', label: 'Blue Hour' },
+            { value: 'dawn', label: 'Dawn' },
+            { value: 'dusk', label: 'Dusk' },
+        ]
+    },
+    {
+        key: 'feeling',
+        label: 'Sentimento',
+        options: [
+            { value: 'off', label: 'OFF' },
+            { value: 'happy', label: 'Happy' },
+            { value: 'sad', label: 'Sad' },
+            { value: 'tense', label: 'Tense' },
+            { value: 'dreamy', label: 'Dreamy' },
+            { value: 'energetic', label: 'Energetic' },
+            { value: 'nostalgic', label: 'Nostalgic' },
+        ]
+    },
+    {
+        key: 'color',
+        label: 'Coloração',
+        options: [
+            { value: 'off', label: 'OFF' },
+            { value: 'vibrant', label: 'Vibrant' },
+            { value: 'monochromatic', label: 'Monochromatic' },
+            { value: 'pastel', label: 'Pastel' },
+            { value: 'high contrast', label: 'High Contrast' },
+            { value: 'low contrast', label: 'Low Contrast' },
+        ]
+    },
+    {
+        key: 'sceneQuality',
+        label: 'Qualidade da Cena',
+        options: [
+            { value: 'off', label: 'OFF' },
+            { value: '4K', label: '4K' },
+            { value: '1080p', label: '1080p' },
+            { value: '720p', label: '720p' },
+            { value: 'grainy', label: 'Grainy' },
+            { value: 'sharp', label: 'Sharp' },
+        ]
+    },
+    {
+        key: 'sceneStyle',
+        label: 'Estilo da Cena',
+        options: [
+            { value: 'off', label: 'OFF' },
+            { value: 'realistic', label: 'Realistic' },
+            { value: 'animated', label: 'Animated' },
+            { value: 'fantasy', label: 'Fantasy' },
+            { value: 'sci-fi', label: 'Sci-Fi' },
+            { value: 'vintage', label: 'Vintage' },
+        ]
+    },
+    {
+        key: 'framing',
+        label: 'Enquadramento',
+        options: [
+            { value: 'off', label: 'OFF' },
+            { value: 'close-up', label: 'Close-up' },
+            { value: 'medium shot', label: 'Medium Shot' },
+            { value: 'long shot', label: 'Long Shot' },
+            { value: 'establishing shot', label: 'Establishing Shot' },
+            { value: 'point of view', label: 'Point of View (POV)'},
+        ]
+    },
+    {
+        key: 'texture',
+        label: 'Textura',
+        options: [
+            { value: 'off', label: 'OFF' },
+            { value: 'smooth', label: 'Smooth' },
+            { value: 'rough', label: 'Rough' },
+            { value: 'glossy', label: 'Glossy' },
+            { value: 'matte', label: 'Matte' },
+        ]
+    },
+    {
+        key: 'cameraMovement',
+        label: 'Movimento da Câmera',
+        options: [
+            { value: 'off', label: 'OFF' },
+            { value: 'pan', label: 'Pan' },
+            { value: 'tilt', label: 'Tilt' },
+            { value: 'dolly', label: 'Dolly' },
+            { value: 'zoom in', label: 'Zoom In' },
+            { value: 'zoom out', label: 'Zoom Out' },
+            { value: 'tracking shot', label: 'Tracking Shot' },
+        ]
+    },
+    {
+        key: 'fps',
+        label: 'FPS',
+        options: [
+            { value: 'off', label: 'OFF' },
+            { value: '24', label: '24 FPS (Cinematic)' },
+            { value: '30', label: '30 FPS (Standard Video)' },
+            { value: '60', label: '60 FPS (Slow Motion/Action)' },
+            { value: '120', label: '120 FPS (Super Slow Motion)' },
+        ]
+    }
+];
+
+export const SPECIAL_MIDJOURNEY_KEYS: Record<string, string> = {
+    aspectRatio: '--ar',
+    chaos: '--c',
+    quality: '--q',
+    style: '--style',
+    stylize: '--s',
+    version: '--v',
 };
-
-export type FormOptionKey = keyof typeof FORM_OPTIONS;
-
-export const SCENE_FORM_OPTIONS = {
-  cameraType: [
-      { value: 'off', label: 'OFF' },
-      { value: 'cinematic', label: 'Cinematic' },
-      { value: 'documentary', label: 'Documentary' },
-      { value: 'handheld', label: 'Handheld' },
-      { value: 'static', label: 'Static' },
-  ],
-  lens: [
-      { value: 'off', label: 'OFF' },
-      { value: 'wide', label: 'Wide Angle' },
-      { value: 'telephoto', label: 'Telephoto' },
-      { value: 'fisheye', label: 'Fisheye' },
-      { value: 'macro', label: 'Macro' },
-  ],
-  timeOfDay: [
-      { value: 'off', label: 'OFF' },
-      { value: 'day', label: 'Day' },
-      { value: 'night', label: 'Night' },
-      { value: 'golden hour', label: 'Golden Hour' },
-      { value: 'blue hour', label: 'Blue Hour' },
-      { value: 'dawn', label: 'Dawn' },
-      { value: 'dusk', label: 'Dusk' },
-  ],
-  feeling: [
-      { value: 'off', label: 'OFF' },
-      { value: 'happy', label: 'Happy' },
-      { value: 'sad', label: 'Sad' },
-      { value: 'tense', label: 'Tense' },
-      { value: 'dreamy', label: 'Dreamy' },
-      { value: 'energetic', label: 'Energetic' },
-      { value: 'nostalgic', label: 'Nostalgic' },
-  ],
-  color: [
-      { value: 'off', label: 'OFF' },
-      { value: 'vibrant', label: 'Vibrant' },
-      { value: 'monochromatic', label: 'Monochromatic' },
-      { value: 'pastel', label: 'Pastel' },
-      { value: 'high contrast', label: 'High Contrast' },
-      { value: 'low contrast', label: 'Low Contrast' },
-  ],
-  sceneQuality: [
-      { value: 'off', label: 'OFF' },
-      { value: '4K', label: '4K' },
-      { value: '1080p', label: '1080p' },
-      { value: '720p', label: '720p' },
-      { value: 'grainy', label: 'Grainy' },
-      { value: 'sharp', label: 'Sharp' },
-  ],
-  sceneStyle: [
-      { value: 'off', label: 'OFF' },
-      { value: 'realistic', label: 'Realistic' },
-      { value: 'animated', label: 'Animated' },
-      { value: 'fantasy', label: 'Fantasy' },
-      { value: 'sci-fi', label: 'Sci-Fi' },
-      { value: 'vintage', label: 'Vintage' },
-  ],
-  framing: [
-      { value: 'off', label: 'OFF' },
-      { value: 'close-up', label: 'Close-up' },
-      { value: 'medium shot', label: 'Medium Shot' },
-      { value: 'long shot', label: 'Long Shot' },
-      { value: 'establishing shot', label: 'Establishing Shot' },
-      { value: 'point of view', label: 'Point of View (POV)'},
-  ],
-  texture: [
-      { value: 'off', label: 'OFF' },
-      { value: 'smooth', label: 'Smooth' },
-      { value: 'rough', label: 'Rough' },
-      { value: 'glossy', label: 'Glossy' },
-      { value: 'matte', label: 'Matte' },
-  ],
-  cameraMovement: [
-      { value: 'off', label: 'OFF' },
-      { value: 'pan', label: 'Pan' },
-      { value: 'tilt', label: 'Tilt' },
-      { value: 'dolly', label: 'Dolly' },
-      { value: 'zoom in', label: 'Zoom In' },
-      { value: 'zoom out', label: 'Zoom Out' },
-      { value: 'tracking shot', label: 'Tracking Shot' },
-  ],
-  fps: [
-      { value: 'off', label: 'OFF' },
-      { value: '24', label: '24 FPS (Cinematic)' },
-      { value: '30', label: '30 FPS (Standard Video)' },
-      { value: '60', label: '60 FPS (Slow Motion/Action)' },
-      { value: '120', label: '120 FPS (Super Slow Motion)' },
-  ],
-};
-
-export type SceneFormOptionKey = keyof typeof SCENE_FORM_OPTIONS;

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, useFieldArray } from "react-hook-form";
 import * as z from "zod";
@@ -24,49 +24,23 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { SceneFormOptionKey } from "@/lib/constants";
 import { Clipboard, ClipboardCheck, Sparkles, PlusCircle, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useOptions } from "@/context/options-context";
 
-const sceneSchema = z.object({
-  prompt: z.string().min(1, "O prompt da cena é obrigatório."),
-  cameraType: z.string().optional(),
-  lens: z.string().optional(),
-  timeOfDay: z.string().optional(),
-  feeling: z.string().optional(),
-  color: z.string().optional(),
-  sceneQuality: z.string().optional(),
-  sceneStyle: z.string().optional(),
-  framing: z.string().optional(),
-  texture: z.string().optional(),
-  cameraMovement: z.string().optional(),
-  fps: z.string().optional(),
-});
-
-const formSchema = z.object({
-  scenes: z.array(sceneSchema).max(8, "Você pode adicionar no máximo 8 cenas."),
-});
-
-type FormValues = z.infer<typeof formSchema>;
-
-const SceneSelectField = ({
+const DynamicSelectField = ({
   control,
   name,
   label,
   placeholder,
-  optionsKey,
+  options,
 }: {
   control: any;
   name: string;
   label: string;
   placeholder: string;
-  optionsKey: SceneFormOptionKey;
+  options: { value: string; label: string }[];
 }) => {
-  const { sceneOptions } = useOptions();
-  const options = sceneOptions[optionsKey];
-  if (!options) return null;
-
   return (
     <FormField
       control={control}
@@ -97,26 +71,41 @@ const SceneSelectField = ({
 
 export function SceneGeneratorForm() {
   const { toast } = useToast();
+  const { sceneOptions } = useOptions();
   const [output, setOutput] = useState("");
   const [hasCopied, setHasCopied] = useState(false);
+
+  const { sceneSchema, defaultSceneValues, formSchema } = useMemo(() => {
+    const sceneSchemaObject: { [key: string]: z.ZodType<any, any> } = {
+        prompt: z.string().min(1, "O prompt da cena é obrigatório."),
+    };
+    const defaultSceneVals: { [key: string]: string } = {
+        prompt: "",
+    };
+
+    sceneOptions.forEach(option => {
+      sceneSchemaObject[option.key] = z.string().optional();
+      defaultSceneVals[option.key] = 'off';
+    });
+
+    const sceneSchema = z.object(sceneSchemaObject);
+    const formSchema = z.object({
+        scenes: z.array(sceneSchema).max(8, "Você pode adicionar no máximo 8 cenas."),
+    });
+
+    return {
+      sceneSchema,
+      defaultSceneValues: defaultSceneVals,
+      formSchema,
+    };
+  }, [sceneOptions]);
+  
+  type FormValues = z.infer<typeof formSchema>;
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      scenes: [{ 
-        prompt: "",
-        cameraType: "off",
-        lens: "off",
-        timeOfDay: "off",
-        feeling: "off",
-        color: "off",
-        sceneQuality: "off",
-        sceneStyle: "off",
-        framing: "off",
-        texture: "off",
-        cameraMovement: "off",
-        fps: "off",
-      }],
+      scenes: [defaultSceneValues],
     },
   });
 
@@ -132,13 +121,12 @@ export function SceneGeneratorForm() {
       const { prompt, ...rest } = scene;
       const parameters: Record<string, string> = {};
       
-      const paramKeys = Object.keys(rest) as (keyof typeof rest)[];
-
-      paramKeys.forEach(key => {
-          const value = rest[key];
-          if (!isNotApplicable(value)) {
-              parameters[key] = value!;
-          }
+      sceneOptions.forEach(option => {
+        const key = option.key;
+        const value = rest[key];
+        if (!isNotApplicable(value)) {
+            parameters[key] = value!;
+        }
       });
 
       return {
@@ -169,20 +157,7 @@ export function SceneGeneratorForm() {
 
   const addScene = () => {
     if (fields.length < 8) {
-      append({ 
-        prompt: "",
-        cameraType: "off",
-        lens: "off",
-        timeOfDay: "off",
-        feeling: "off",
-        color: "off",
-        sceneQuality: "off",
-        sceneStyle: "off",
-        framing: "off",
-        texture: "off",
-        cameraMovement: "off",
-        fps: "off",
-      });
+      append(defaultSceneValues);
     } else {
         toast({
             variant: 'destructive',
@@ -237,17 +212,16 @@ export function SceneGeneratorForm() {
                           )}
                         />
                         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-                            <SceneSelectField control={form.control} name={`scenes.${index}.cameraType`} label="Tipo de Câmera" placeholder="OFF" optionsKey="cameraType" />
-                            <SceneSelectField control={form.control} name={`scenes.${index}.lens`} label="Lente" placeholder="OFF" optionsKey="lens" />
-                            <SceneSelectField control={form.control} name={`scenes.${index}.timeOfDay`} label="Horário do Dia" placeholder="OFF" optionsKey="timeOfDay" />
-                            <SceneSelectField control={form.control} name={`scenes.${index}.feeling`} label="Sentimento" placeholder="OFF" optionsKey="feeling" />
-                            <SceneSelectField control={form.control} name={`scenes.${index}.color`} label="Coloração" placeholder="OFF" optionsKey="color" />
-                            <SceneSelectField control={form.control} name={`scenes.${index}.sceneQuality`} label="Qualidade" placeholder="OFF" optionsKey="sceneQuality" />
-                            <SceneSelectField control={form.control} name={`scenes.${index}.sceneStyle`} label="Estilo" placeholder="OFF" optionsKey="sceneStyle" />
-                            <SceneSelectField control={form.control} name={`scenes.${index}.framing`} label="Enquadramento" placeholder="OFF" optionsKey="framing" />
-                            <SceneSelectField control={form.control} name={`scenes.${index}.texture`} label="Textura" placeholder="OFF" optionsKey="texture" />
-                            <SceneSelectField control={form.control} name={`scenes.${index}.cameraMovement`} label="Movimento da Câmera" placeholder="OFF" optionsKey="cameraMovement" />
-                            <SceneSelectField control={form.control} name={`scenes.${index}.fps`} label="FPS" placeholder="OFF" optionsKey="fps" />
+                            {sceneOptions.map(option => (
+                                <DynamicSelectField
+                                    key={option.key}
+                                    control={form.control}
+                                    name={`scenes.${index}.${option.key}`}
+                                    label={option.label}
+                                    placeholder="OFF"
+                                    options={option.options}
+                                />
+                            ))}
                         </div>
                       </div>
                     </AccordionContent>

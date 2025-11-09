@@ -1,17 +1,15 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { FORM_OPTIONS, SCENE_FORM_OPTIONS, FormOptionKey, SceneFormOptionKey } from '@/lib/constants';
+import { INITIAL_PROMPT_OPTIONS, INITIAL_SCENE_OPTIONS, FormOption } from '@/lib/constants';
 
-type Option = { value: string; label: string };
-type PromptOptionsState = Record<FormOptionKey, Option[]>;
-type SceneOptionsState = Record<SceneFormOptionKey, Option[]>;
+type OptionsState = FormOption[];
 
 interface OptionsContextType {
-  promptOptions: PromptOptionsState;
-  sceneOptions: SceneOptionsState;
-  updatePromptOptions: (key: FormOptionKey, newOptions: Option[]) => void;
-  updateSceneOptions: (key: SceneFormOptionKey, newOptions: Option[]) => void;
+  promptOptions: OptionsState;
+  sceneOptions: OptionsState;
+  setPromptOptions: React.Dispatch<React.SetStateAction<OptionsState>>;
+  setSceneOptions: React.Dispatch<React.SetStateAction<OptionsState>>;
   isLoaded: boolean;
 }
 
@@ -20,8 +18,8 @@ const OptionsContext = createContext<OptionsContextType | undefined>(undefined);
 const isServer = typeof window === 'undefined';
 
 export const OptionsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [promptOptions, setPromptOptions] = useState<PromptOptionsState>(FORM_OPTIONS);
-  const [sceneOptions, setSceneOptions] = useState<SceneOptionsState>(SCENE_FORM_OPTIONS);
+  const [promptOptions, setPromptOptions] = useState<OptionsState>(INITIAL_PROMPT_OPTIONS);
+  const [sceneOptions, setSceneOptions] = useState<OptionsState>(INITIAL_SCENE_OPTIONS);
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
@@ -31,9 +29,10 @@ export const OptionsProvider: React.FC<{ children: React.ReactNode }> = ({ child
       const storedOptions = localStorage.getItem('vision-weaver-options');
       if (storedOptions) {
         const parsedOptions = JSON.parse(storedOptions);
-        // Basic validation to ensure the stored data has the expected shape
-        if (parsedOptions.promptOptions && parsedOptions.sceneOptions) {
+        if (parsedOptions.promptOptions && Array.isArray(parsedOptions.promptOptions)) {
           setPromptOptions(parsedOptions.promptOptions);
+        }
+        if (parsedOptions.sceneOptions && Array.isArray(parsedOptions.sceneOptions)) {
           setSceneOptions(parsedOptions.sceneOptions);
         }
       }
@@ -55,20 +54,12 @@ export const OptionsProvider: React.FC<{ children: React.ReactNode }> = ({ child
     }
   }, [promptOptions, sceneOptions, isLoaded]);
 
-  const updatePromptOptions = useCallback((key: FormOptionKey, newOptions: Option[]) => {
-    setPromptOptions(prev => ({ ...prev, [key]: newOptions }));
-  }, []);
-
-  const updateSceneOptions = useCallback((key: SceneFormOptionKey, newOptions: Option[]) => {
-    setSceneOptions(prev => ({ ...prev, [key]: newOptions }));
-  }, []);
-
-  if (!isLoaded) {
+  if (!isLoaded && !isServer) {
     return null;
   }
 
   return (
-    <OptionsContext.Provider value={{ promptOptions, sceneOptions, updatePromptOptions, updateSceneOptions, isLoaded }}>
+    <OptionsContext.Provider value={{ promptOptions, sceneOptions, setPromptOptions, setSceneOptions, isLoaded }}>
       {children}
     </OptionsContext.Provider>
   );

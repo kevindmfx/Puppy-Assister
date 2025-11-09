@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -23,45 +23,25 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { FormOptionKey } from "@/lib/constants";
+import { SPECIAL_MIDJOURNEY_KEYS } from "@/lib/constants";
 import { Clipboard, ClipboardCheck, Sparkles } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useOptions } from "@/context/options-context";
 import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
 
-const formSchema = z.object({
-  basePrompt: z.string().min(1, "Por favor, insira um prompt base."),
-  aspectRatio: z.string().optional(),
-  chaos: z.string().optional(),
-  quality: z.string().optional(),
-  style: z.string().optional(),
-  stylize: z.string().optional(),
-  version: z.string().optional(),
-  camera: z.string().optional(),
-  outputType: z.enum(['midjourney', 'json']).default('midjourney'),
-});
-
-type FormValues = z.infer<typeof formSchema>;
-type SelectFieldNames = 'aspectRatio' | 'chaos' | 'quality' | 'style' | 'stylize' | 'version' | 'camera';
-
-const MidjourneySelectField = ({
+const DynamicSelectField = ({
   control,
   name,
   label,
   placeholder,
-  optionsKey,
+  options,
 }: {
   control: any;
-  name: SelectFieldNames;
+  name: string;
   label: string;
   placeholder: string;
-  optionsKey: FormOptionKey;
+  options: { value: string; label: string }[];
 }) => {
-  const { promptOptions } = useOptions();
-  const selectOptions = promptOptions[optionsKey];
-
-  if (!selectOptions) return null;
-
   return (
     <FormField
       control={control}
@@ -76,7 +56,7 @@ const MidjourneySelectField = ({
               </SelectTrigger>
             </FormControl>
             <SelectContent>
-              {selectOptions.map((option) => (
+              {options.map((option) => (
                 <SelectItem key={option.value} value={option.value}>
                   {option.label}
                 </SelectItem>
@@ -92,49 +72,55 @@ const MidjourneySelectField = ({
 
 export function VisionWeaverForm() {
   const { toast } = useToast();
+  const { promptOptions } = useOptions();
   const [output, setOutput] = useState("");
   const [hasCopied, setHasCopied] = useState(false);
 
+  const { formSchema, defaultValues } = useMemo(() => {
+    const schemaObject: { [key: string]: z.ZodType<any, any> } = {
+        basePrompt: z.string().min(1, "Por favor, insira um prompt base."),
+        outputType: z.enum(['midjourney', 'json']).default('midjourney'),
+    };
+    const defaultVals: { [key: string]: string } = {
+        basePrompt: "",
+        outputType: "midjourney",
+    };
+
+    promptOptions.forEach(option => {
+      schemaObject[option.key] = z.string().optional();
+      defaultVals[option.key] = 'off';
+    });
+
+    return {
+      formSchema: z.object(schemaObject),
+      defaultValues: defaultVals,
+    };
+  }, [promptOptions]);
+
+  type FormValues = z.infer<typeof formSchema>;
+
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      basePrompt: "",
-      aspectRatio: "off",
-      chaos: "off",
-      quality: "off",
-      style: "off",
-      stylize: "off",
-      version: "off",
-      camera: "off",
-      outputType: "midjourney",
-    },
+    defaultValues: defaultValues,
   });
-
+  
   const isNotApplicable = (value: string | undefined) => !value || value === 'off';
 
   const generateMidjourneyPrompt = (values: FormValues) => {
     let prompt = values.basePrompt;
-    if (!isNotApplicable(values.camera)) {
-        prompt += `, ${values.camera}`;
-    }
-    if (!isNotApplicable(values.aspectRatio)) {
-      prompt += ` --ar ${values.aspectRatio}`;
-    }
-    if (!isNotApplicable(values.chaos)) {
-      prompt += ` --c ${values.chaos}`;
-    }
-    if (!isNotApplicable(values.quality)) {
-      prompt += ` --q ${values.quality}`;
-    }
-    if (!isNotApplicable(values.style)) {
-        prompt += ` --style ${values.style}`;
-    }
-    if (!isNotApplicable(values.stylize)) {
-      prompt += ` --s ${values.stylize}`;
-    }
-    if (!isNotApplicable(values.version)) {
-      prompt += ` --v ${values.version}`;
-    }
+    
+    promptOptions.forEach(option => {
+        const key = option.key;
+        const value = values[key];
+        if(!isNotApplicable(value)) {
+            if (SPECIAL_MIDJOURNEY_KEYS[key]) {
+                prompt += ` ${SPECIAL_MIDJOURNEY_KEYS[key]} ${value}`;
+            } else {
+                prompt += `, ${value}`;
+            }
+        }
+    });
+
     return prompt.trim();
   };
   
@@ -142,14 +128,12 @@ export function VisionWeaverForm() {
     const { basePrompt, outputType, ...rest } = values;
     const parameters: Record<string, string> = {};
     
-    // Explicitly type the keys to match the form values
-    const paramKeys: (keyof typeof rest)[] = ['aspectRatio', 'chaos', 'quality', 'style', 'stylize', 'version', 'camera'];
-
-    paramKeys.forEach(key => {
-        const value = rest[key];
-        if (!isNotApplicable(value)) {
-            parameters[key] = value!;
-        }
+    promptOptions.forEach(option => {
+      const key = option.key;
+      const value = rest[key];
+      if (!isNotApplicable(value)) {
+        parameters[key] = value!;
+      }
     });
 
     const promptData = {
@@ -215,13 +199,16 @@ export function VisionWeaverForm() {
                 />
 
               <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-                <MidjourneySelectField control={form.control} name="version" label="Versão do Midjourney" placeholder="OFF" optionsKey="version" />
-                <MidjourneySelectField control={form.control} name="aspectRatio" label="Proporção (Aspect Ratio)" placeholder="OFF" optionsKey="aspectRatio" />
-                <MidjourneySelectField control={form.control} name="quality" label="Qualidade" placeholder="OFF" optionsKey="quality" />
-                <MidjourneySelectField control={form.control} name="chaos" label="Caos (Chaos)" placeholder="OFF" optionsKey="chaos" />
-                <MidjourneySelectField control={form.control} name="stylize" label="Estilização (Stylize)" placeholder="OFF" optionsKey="stylize" />
-                <MidjourneySelectField control={form.control} name="style" label="Estilo" placeholder="OFF" optionsKey="style" />
-                <MidjourneySelectField control={form.control} name="camera" label="Câmera / Lente" placeholder="OFF" optionsKey="camera" />
+                {promptOptions.map(option => (
+                    <DynamicSelectField 
+                        key={option.key}
+                        control={form.control}
+                        name={option.key}
+                        label={option.label}
+                        placeholder="OFF"
+                        options={option.options}
+                    />
+                ))}
               </div>
 
               <div className="grid grid-cols-1 items-start gap-8 pt-4 md:grid-cols-3">
