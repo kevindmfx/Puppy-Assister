@@ -220,7 +220,7 @@ export function SceneGeneratorForm() {
                             <SceneSelectField control={form.control} name={`scenes.${index}.framing`} label="Enquadramento" placeholder="OFF" optionsKey="framing" />
                             <SceneSelectField control={form.control} name={`scenes.${index}.texture`} label="Textura" placeholder="OFF" optionsKey="texture" />
                             <SceneSelectField control={form.control} name={`scenes.${index}.cameraMovement`} label="Movimento da Câmera" placeholder="OFF" optionsKey="cameraMovement" />
-                            <SceneSelectFiel control={form.control} name={`scenes.${index}.fps`} label="FPS" placeholder="OFF" optionsKey="fps" />
+                            <SceneSelectField control={form.control} name={`scenes.${index}.fps`} label="FPS" placeholder="OFF" optionsKey="fps" />
                         </div>
                       </div>
                     </AccordionContent>
