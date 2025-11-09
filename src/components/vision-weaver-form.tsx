@@ -149,7 +149,7 @@ export function VisionWeaverForm() {
     const promptData = {
         prompt: basePrompt,
         parameters: Object.fromEntries(
-            Object.entries(params).filter(([, value]) => value !== "" && value !== undefined && value !== "n/a")
+            Object.entries(params).filter(([, value]) => !isNotApplicable(value))
         )
     };
     return JSON.stringify(promptData, null, 2);
@@ -190,38 +190,46 @@ export function VisionWeaverForm() {
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
               <div className="grid grid-cols-1 gap-x-8 gap-y-4 md:grid-cols-2">
-                <FormField
-                  control={form.control}
-                  name="basePrompt"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-col">
-                      <FormLabel className="text-lg">Prompt Base</FormLabel>
-                      <FormControl>
-                        <Textarea
-                          placeholder="Ex: um astronauta surfando em uma onda cósmica"
-                          className="h-24 min-h-[96px] resize-none"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormDescription className="mt-auto pt-2">
-                        Esta é a ideia principal da sua imagem.
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                <div className="flex flex-col space-y-2">
+                    <FormField
+                    control={form.control}
+                    name="basePrompt"
+                    render={({ field }) => (
+                        <FormItem className="flex flex-1 flex-col">
+                        <FormLabel className="text-lg">Prompt Base</FormLabel>
+                        <FormControl>
+                            <Textarea
+                            placeholder="Ex: um astronauta surfando em uma onda cósmica"
+                            className="min-h-[140px] flex-1 resize-none"
+                            {...field}
+                            />
+                        </FormControl>
+                        <FormDescription className="mt-auto pt-2">
+                            Esta é a ideia principal da sua imagem.
+                        </FormDescription>
+                        <FormMessage />
+                        </FormItem>
+                    )}
+                    />
+                    <div className="mt-auto">
+                        <Button type="button" variant="link" className="h-auto p-0" onClick={() => setShowExtraDetails(!showExtraDetails)}>
+                            <PlusCircle className="mr-2 h-4 w-4" />
+                            {showExtraDetails ? 'Remover Detalhes Adicionais' : 'Adicionar Detalhes Adicionais'}
+                        </Button>
+                    </div>
+                </div>
                  <div className="flex flex-col space-y-2">
                     {showExtraDetails && (
                     <FormField
                         control={form.control}
                         name="extraDetails"
                         render={({ field }) => (
-                        <FormItem className="flex flex-col flex-grow">
+                        <FormItem className="flex flex-grow flex-col">
                             <FormLabel>Detalhes Adicionais</FormLabel>
                             <FormControl>
                             <Textarea
                                 placeholder="Adicione aqui outros detalhes, separados por vírgula. Ex: arte conceitual, 8k, ultra detalhado"
-                                className="h-24 min-h-[96px] resize-none"
+                                className="min-h-[140px] flex-1 resize-none"
                                 {...field}
                             />
                             </FormControl>
@@ -230,12 +238,6 @@ export function VisionWeaverForm() {
                         )}
                     />
                     )}
-                    <div className="mt-auto">
-                        <Button type="button" variant="link" className="p-0 h-auto" onClick={() => setShowExtraDetails(!showExtraDetails)}>
-                            <PlusCircle className="mr-2 h-4 w-4" />
-                            {showExtraDetails ? 'Remover Detalhes Adicionais' : 'Adicionar Detalhes Adicionais'}
-                        </Button>
-                    </div>
                 </div>
               </div>
 
@@ -325,3 +327,5 @@ export function VisionWeaverForm() {
     </>
   );
 }
+
+    
