@@ -211,7 +211,15 @@ export function SettingsPanel() {
     );
   }
 
-  if (!mounted || !isLoaded) {
+  if (!mounted) {
+    return (
+        <Button variant="ghost" size="icon" disabled>
+            <Settings className="h-5 w-5" />
+        </Button>
+    );
+  }
+
+  if (!isLoaded) {
     return (
         <Button variant="ghost" size="icon" disabled>
             <Settings className="h-5 w-5 animate-spin" />
