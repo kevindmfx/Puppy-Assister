@@ -9,7 +9,6 @@ type OptionsState = Record<FormOptionKey, Option[]>;
 interface OptionsContextType {
   options: OptionsState;
   updateOptions: (key: FormOptionKey, newOptions: Option[]) => void;
-  getOptionsAsString: (key: FormOptionKey) => string;
   isLoaded: boolean;
 }
 
@@ -51,13 +50,6 @@ export const OptionsProvider: React.FC<{ children: React.ReactNode }> = ({ child
     setOptions(prev => ({ ...prev, [key]: newOptions }));
   };
 
-  const getOptionsAsString = (key: FormOptionKey): string => {
-    if (!options[key]) {
-        return '';
-    }
-    return options[key].map(opt => `${opt.value}:${opt.label}`).join(';');
-  }
-
   // We don't render the children until the options are loaded from localStorage
   // to prevent hydration mismatches and race conditions.
   if (!isLoaded) {
@@ -65,7 +57,7 @@ export const OptionsProvider: React.FC<{ children: React.ReactNode }> = ({ child
   }
 
   return (
-    <OptionsContext.Provider value={{ options, updateOptions, getOptionsAsString, isLoaded }}>
+    <OptionsContext.Provider value={{ options, updateOptions, isLoaded }}>
       {children}
     </OptionsContext.Provider>
   );
