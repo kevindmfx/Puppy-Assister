@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, memo } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, useFieldArray } from "react-hook-form";
 import * as z from "zod";
@@ -30,7 +30,7 @@ import { Clipboard, ClipboardCheck, Sparkles, PlusCircle, Trash2 } from "lucide-
 import { useToast } from "@/hooks/use-toast";
 import { useOptions } from "@/context/options-context";
 
-const DynamicSelectField = ({
+const DynamicSelectField = memo(({
   control,
   name,
   label,
@@ -69,7 +69,9 @@ const DynamicSelectField = ({
       )}
     />
   );
-};
+});
+
+DynamicSelectField.displayName = 'DynamicSelectField';
 
 export function SceneGeneratorForm() {
   const { toast } = useToast();

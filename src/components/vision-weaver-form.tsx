@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, memo } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -29,7 +29,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useOptions } from "@/context/options-context";
 import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
 
-const DynamicSelectField = ({
+const DynamicSelectField = memo(({
   control,
   name,
   label,
@@ -68,7 +68,9 @@ const DynamicSelectField = ({
       )}
     />
   );
-};
+});
+
+DynamicSelectField.displayName = 'DynamicSelectField';
 
 export function VisionWeaverForm() {
   const { toast } = useToast();
@@ -111,7 +113,7 @@ export function VisionWeaverForm() {
     
     promptOptions.forEach(option => {
         const key = option.key;
-        const value = values[key];
+        const value = values[key as keyof FormValues] as string | undefined;
         if(!isNotApplicable(value)) {
             if (SPECIAL_MIDJOURNEY_KEYS[key]) {
                 prompt += ` ${SPECIAL_MIDJOURNEY_KEYS[key]} ${value}`;
@@ -130,7 +132,7 @@ export function VisionWeaverForm() {
     
     promptOptions.forEach(option => {
       const key = option.key;
-      const value = rest[key];
+      const value = rest[key as keyof typeof rest];
       if (!isNotApplicable(value)) {
         parameters[key] = value!;
       }
