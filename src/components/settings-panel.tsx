@@ -2,6 +2,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 import { Settings, Save, PlusCircle, X, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -16,10 +17,9 @@ import {
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { useOptions } from '@/context/options-context';
-import { Option, FormOption } from '@/lib/constants';
+import { FormOption } from '@/lib/constants';
 import { useToast } from '@/hooks/use-toast';
 import { ScrollArea } from './ui/scroll-area';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -36,38 +36,39 @@ import { cn } from '@/lib/utils';
 export function SettingsPanel() {
   const { promptOptions, sceneOptions, setPromptOptions, setSceneOptions, isLoaded } = useOptions();
   const { toast } = useToast();
+  const pathname = usePathname();
+
+  const [mounted, setMounted] = useState(false);
+  const [localOptions, setLocalOptions] = useState<FormOption[]>([]);
   
-  const [localPromptOptions, setLocalPromptOptions] = useState<FormOption[]>([]);
-  const [localSceneOptions, setLocalSceneOptions] = useState<FormOption[]>([]);
-  const [isClient, setIsClient] = useState(false);
+  const isSceneGenerator = pathname === '/scene-generator';
+  const currentOptions = isSceneGenerator ? sceneOptions : promptOptions;
+  const setCurrentOptions = isSceneGenerator ? setSceneOptions : setPromptOptions;
+  const panelTitle = isSceneGenerator ? "Gerador de Cenas" : "Gerador de Prompt";
 
   useEffect(() => {
-    setIsClient(true);
+    setMounted(true);
   }, []);
 
   useEffect(() => {
     if (isLoaded) {
-      setLocalPromptOptions(JSON.parse(JSON.stringify(promptOptions)));
-      setLocalSceneOptions(JSON.parse(JSON.stringify(sceneOptions)));
+      setLocalOptions(JSON.parse(JSON.stringify(currentOptions)));
     }
-  }, [isLoaded, promptOptions, sceneOptions]);
+  }, [isLoaded, currentOptions]);
   
   const handleSave = () => {
     try {
         const validateAndFilter = (options: FormOption[]) => {
             return options
-                .filter(field => field.key && field.label) // Remove fields with empty key or label
+                .filter(field => field.key && field.label) 
                 .map(field => ({
                     ...field,
-                    options: field.options.filter(opt => opt.value && opt.label) // Remove options with empty value or label
+                    options: field.options.filter(opt => opt.value && opt.label) 
                 }));
         }
 
-        const finalPromptOptions = validateAndFilter(localPromptOptions);
-        const finalSceneOptions = validateAndFilter(localSceneOptions);
-
-        setPromptOptions(finalPromptOptions);
-        setSceneOptions(finalSceneOptions);
+        const finalOptions = validateAndFilter(localOptions);
+        setCurrentOptions(finalOptions);
 
         toast({
             title: "Configurações Salvas!",
@@ -84,61 +85,55 @@ export function SettingsPanel() {
     }
   };
 
-  const renderOptionsEditor = (
-    type: 'prompt' | 'scene'
-  ) => {
-    const isPrompt = type === 'prompt';
-    const localData = isPrompt ? localPromptOptions : localSceneOptions;
-    const setLocalData = isPrompt ? setLocalPromptOptions : setLocalSceneOptions;
+  const handleFieldChange = (index: number, field: 'key' | 'label', value: string) => {
+      const updatedFields = [...localOptions];
+      updatedFields[index] = { ...updatedFields[index], [field]: value };
+      setLocalOptions(updatedFields);
+  }
 
-    const handleFieldChange = (index: number, field: 'key' | 'label', value: string) => {
-        const updatedFields = [...localData];
-        updatedFields[index] = { ...updatedFields[index], [field]: value };
-        setLocalData(updatedFields);
-    }
+  const handleOptionChange = (fieldIndex: number, optionIndex: number, field: 'value' | 'label', value: string) => {
+      const updatedFields = [...localOptions];
+      const updatedOptions = [...updatedFields[fieldIndex].options];
+      updatedOptions[optionIndex] = { ...updatedOptions[optionIndex], [field]: value };
+      updatedFields[fieldIndex].options = updatedOptions;
+      setLocalOptions(updatedFields);
+  };
 
-    const handleOptionChange = (fieldIndex: number, optionIndex: number, field: 'value' | 'label', value: string) => {
-        const updatedFields = [...localData];
-        const updatedOptions = [...updatedFields[fieldIndex].options];
-        updatedOptions[optionIndex] = { ...updatedOptions[optionIndex], [field]: value };
-        updatedFields[fieldIndex].options = updatedOptions;
-        setLocalData(updatedFields);
-    };
+  const handleAddOption = (fieldIndex: number) => {
+      const updatedFields = [...localOptions];
+      updatedFields[fieldIndex].options.push({ value: '', label: '' });
+      setLocalOptions(updatedFields);
+  };
 
-    const handleAddOption = (fieldIndex: number) => {
-        const updatedFields = [...localData];
-        updatedFields[fieldIndex].options.push({ value: '', label: '' });
-        setLocalData(updatedFields);
-    };
+  const handleRemoveOption = (fieldIndex: number, optionIndex: number) => {
+      const updatedFields = [...localOptions];
+      updatedFields[fieldIndex].options.splice(optionIndex, 1);
+      setLocalOptions(updatedFields);
+  };
 
-    const handleRemoveOption = (fieldIndex: number, optionIndex: number) => {
-        const updatedFields = [...localData];
-        updatedFields[fieldIndex].options.splice(optionIndex, 1);
-        setLocalData(updatedFields);
-    };
+  const handleAddField = () => {
+      setLocalOptions([...localOptions, { key: '', label: '', options: [{ value: 'off', label: 'OFF' }] }]);
+  }
 
-    const handleAddField = () => {
-        setLocalData([...localData, { key: '', label: '', options: [{ value: 'off', label: 'OFF' }] }]);
-    }
+  const handleRemoveField = (fieldIndex: number) => {
+      const updatedFields = [...localOptions];
+      updatedFields.splice(fieldIndex, 1);
+      setLocalOptions(updatedFields);
+  }
 
-    const handleRemoveField = (fieldIndex: number) => {
-        const updatedFields = [...localData];
-        updatedFields.splice(fieldIndex, 1);
-        setLocalData(updatedFields);
-    }
-
+  const renderOptionsEditor = () => {
     return (
       <div className="space-y-4 py-6">
         <p className="text-sm text-muted-foreground">
             Adicione, edite ou remova campos de seleção e suas respectivas opções.
         </p>
-        {localData.map((field, fieldIndex) => (
+        {localOptions.map((field, fieldIndex) => (
           <div key={fieldIndex} className="space-y-3 rounded-md border p-4">
             <div className="flex items-end gap-2">
                 <div className='flex-1 space-y-1'>
-                    <Label htmlFor={`field-label-${type}-${fieldIndex}`} className="text-base font-medium">Rótulo do Campo</Label>
+                    <Label htmlFor={`field-label-${fieldIndex}`} className="text-base font-medium">Rótulo do Campo</Label>
                     <Input
-                        id={`field-label-${type}-${fieldIndex}`}
+                        id={`field-label-${fieldIndex}`}
                         placeholder="Ex: Proporção"
                         value={field.label}
                         onChange={(e) => handleFieldChange(fieldIndex, 'label', e.target.value)}
@@ -146,9 +141,9 @@ export function SettingsPanel() {
                     />
                 </div>
                  <div className='flex-1 space-y-1'>
-                    <Label htmlFor={`field-key-${type}-${fieldIndex}`} className="text-base font-medium">ID Único</Label>
+                    <Label htmlFor={`field-key-${fieldIndex}`} className="text-base font-medium">ID Único</Label>
                     <Input
-                        id={`field-key-${type}-${fieldIndex}`}
+                        id={`field-key-${fieldIndex}`}
                         placeholder="Ex: aspectRatio"
                         value={field.key}
                         onChange={(e) => handleFieldChange(fieldIndex, 'key', e.target.value)}
@@ -212,32 +207,29 @@ export function SettingsPanel() {
     );
   }
 
+  if (!mounted) {
+    return (
+        <Button variant="ghost" size="icon" disabled>
+            <Settings className="h-5 w-5" />
+        </Button>
+    );
+  }
+
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <Button variant="ghost" size="icon" disabled={!isClient || !isLoaded}>
-          <Settings className={cn("h-5 w-5", (!isLoaded && isClient) && "animate-spin")} />
+        <Button variant="ghost" size="icon" disabled={!isLoaded}>
+          <Settings className={cn("h-5 w-5", !isLoaded && "animate-spin")} />
           <span className="sr-only">Abrir Configurações</span>
         </Button>
       </SheetTrigger>
       <SheetContent className="w-[400px] sm:w-[640px]">
         <SheetHeader>
-          <SheetTitle>Configurações de Opções</SheetTitle>
+          <SheetTitle>Opções - {panelTitle}</SheetTitle>
         </SheetHeader>
-        <Tabs defaultValue="prompt" className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="prompt">Gerador de Prompt</TabsTrigger>
-                <TabsTrigger value="scene">Gerador de Cenas</TabsTrigger>
-            </TabsList>
-            <ScrollArea className="h-[calc(100vh-200px)] pr-4">
-                <TabsContent value="prompt">
-                    {renderOptionsEditor('prompt')}
-                </TabsContent>
-                <TabsContent value="scene">
-                    {renderOptionsEditor('scene')}
-                </TabsContent>
-            </ScrollArea>
-        </Tabs>
+        <ScrollArea className="h-[calc(100vh-140px)] pr-4">
+            {renderOptionsEditor()}
+        </ScrollArea>
         <SheetFooter>
           <SheetClose asChild>
               <Button onClick={handleSave}>
