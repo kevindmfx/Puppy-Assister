@@ -64,3 +64,95 @@ export const FORM_OPTIONS = {
 };
 
 export type FormOptionKey = keyof typeof FORM_OPTIONS;
+
+export const SCENE_FORM_OPTIONS = {
+  cameraType: [
+      { value: 'off', label: 'OFF' },
+      { value: 'cinematic', label: 'Cinematic' },
+      { value: 'documentary', label: 'Documentary' },
+      { value: 'handheld', label: 'Handheld' },
+      { value: 'static', label: 'Static' },
+  ],
+  lens: [
+      { value: 'off', label: 'OFF' },
+      { value: 'wide', label: 'Wide Angle' },
+      { value: 'telephoto', label: 'Telephoto' },
+      { value: 'fisheye', label: 'Fisheye' },
+      { value: 'macro', label: 'Macro' },
+  ],
+  timeOfDay: [
+      { value: 'off', label: 'OFF' },
+      { value: 'day', label: 'Day' },
+      { value: 'night', label: 'Night' },
+      { value: 'golden hour', label: 'Golden Hour' },
+      { value: 'blue hour', label: 'Blue Hour' },
+      { value: 'dawn', label: 'Dawn' },
+      { value: 'dusk', label: 'Dusk' },
+  ],
+  feeling: [
+      { value: 'off', label: 'OFF' },
+      { value: 'happy', label: 'Happy' },
+      { value: 'sad', label: 'Sad' },
+      { value: 'tense', label: 'Tense' },
+      { value: 'dreamy', label: 'Dreamy' },
+      { value: 'energetic', label: 'Energetic' },
+      { value: 'nostalgic', label: 'Nostalgic' },
+  ],
+  color: [
+      { value: 'off', label: 'OFF' },
+      { value: 'vibrant', label: 'Vibrant' },
+      { value: 'monochromatic', label: 'Monochromatic' },
+      { value: 'pastel', label: 'Pastel' },
+      { value: 'high contrast', label: 'High Contrast' },
+      { value: 'low contrast', label: 'Low Contrast' },
+  ],
+  sceneQuality: [
+      { value: 'off', label: 'OFF' },
+      { value: '4K', label: '4K' },
+      { value: '1080p', label: '1080p' },
+      { value: '720p', label: '720p' },
+      { value: 'grainy', label: 'Grainy' },
+      { value: 'sharp', label: 'Sharp' },
+  ],
+  sceneStyle: [
+      { value: 'off', label: 'OFF' },
+      { value: 'realistic', label: 'Realistic' },
+      { value: 'animated', label: 'Animated' },
+      { value: 'fantasy', label: 'Fantasy' },
+      { value: 'sci-fi', label: 'Sci-Fi' },
+      { value: 'vintage', label: 'Vintage' },
+  ],
+  framing: [
+      { value: 'off', label: 'OFF' },
+      { value: 'close-up', label: 'Close-up' },
+      { value: 'medium shot', label: 'Medium Shot' },
+      { value: 'long shot', label: 'Long Shot' },
+      { value: 'establishing shot', label: 'Establishing Shot' },
+      { value: 'point of view', label: 'Point of View (POV)'},
+  ],
+  texture: [
+      { value: 'off', label: 'OFF' },
+      { value: 'smooth', label: 'Smooth' },
+      { value: 'rough', label: 'Rough' },
+      { value: 'glossy', label: 'Glossy' },
+      { value: 'matte', label: 'Matte' },
+  ],
+  cameraMovement: [
+      { value: 'off', label: 'OFF' },
+      { value: 'pan', label: 'Pan' },
+      { value: 'tilt', label: 'Tilt' },
+      { value: 'dolly', label: 'Dolly' },
+      { value: 'zoom in', label: 'Zoom In' },
+      { value: 'zoom out', label: 'Zoom Out' },
+      { value: 'tracking shot', label: 'Tracking Shot' },
+  ],
+  fps: [
+      { value: 'off', label: 'OFF' },
+      { value: '24', label: '24 FPS (Cinematic)' },
+      { value: '30', label: '30 FPS (Standard Video)' },
+      { value: '60', label: '60 FPS (Slow Motion/Action)' },
+      { value: '120', label: '120 FPS (Super Slow Motion)' },
+  ],
+};
+
+export type SceneFormOptionKey = keyof typeof SCENE_FORM_OPTIONS;

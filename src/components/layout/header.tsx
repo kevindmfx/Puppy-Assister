@@ -1,7 +1,7 @@
 "use client";
 
 import Link from 'next/link';
-import { Menu, Wand2 } from 'lucide-react';
+import { Menu, Wand2, Film } from 'lucide-react';
 import { ModeToggle } from '../mode-toggle';
 import { SettingsPanel } from '../settings-panel';
 import { Button } from '@/components/ui/button';
@@ -9,6 +9,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 
@@ -29,6 +30,12 @@ export function Header() {
                 <Link href="/">
                   <Wand2 className="mr-2 h-4 w-4" />
                   <span>Gerador de Prompt</span>
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link href="/scene-generator">
+                  <Film className="mr-2 h-4 w-4" />
+                  <span>Gerador de Cenas</span>
                 </Link>
               </DropdownMenuItem>
             </DropdownMenuContent>
