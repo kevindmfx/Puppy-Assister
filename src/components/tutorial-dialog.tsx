@@ -35,30 +35,27 @@ export function TutorialDialog({ pageKey, steps }: TutorialDialogProps) {
   useEffect(() => {
     if (isTutorialOpen) {
       document.body.style.overflow = 'hidden';
-      setIsVisible(true);
+      // Delay visibility to allow for smooth transition
+      const timer = setTimeout(() => setIsVisible(true), 100);
+      return () => clearTimeout(timer);
     } else {
       document.body.style.overflow = '';
       setIsVisible(false);
       cleanupHighlight();
     }
-
-    return () => {
-      document.body.style.overflow = '';
-    };
   }, [isTutorialOpen]);
   
   useEffect(() => {
     if (!isTutorialOpen || !isVisible || steps.length === 0) {
-      if (isVisible) setIsVisible(false);
+      cleanupHighlight();
       return;
     }
-
-    cleanupHighlight();
     
     const step = steps[currentStep];
     const targetElement = document.querySelector(step.target) as HTMLElement;
     
     if (targetElement) {
+        cleanupHighlight(); // Clean up previous highlight first
         targetElement.classList.add("tutorial-highlight");
         previousTargetRef.current = targetElement;
         targetElement.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
@@ -74,13 +71,11 @@ export function TutorialDialog({ pageKey, steps }: TutorialDialogProps) {
 
             let top, left, arrow;
 
-            // Decide if there's enough space below the target
+            // Try positioning below
             if (targetRect.bottom + dialogRect.height + offset < window.innerHeight) {
-                // Position below
                 top = targetRect.bottom + offset;
                 arrow = 'top';
-            } else {
-                // Position above
+            } else { // Position above
                 top = targetRect.top - dialogRect.height - offset;
                 arrow = 'bottom';
             }
@@ -88,7 +83,7 @@ export function TutorialDialog({ pageKey, steps }: TutorialDialogProps) {
             // Center horizontally
             left = targetRect.left + (targetRect.width / 2) - (dialogRect.width / 2);
 
-            // Adjust to stay within viewport horizontal bounds
+            // Adjust horizontal position to stay within viewport
             if (left < viewportPadding) {
                 left = viewportPadding;
             }
@@ -96,22 +91,20 @@ export function TutorialDialog({ pageKey, steps }: TutorialDialogProps) {
                 left = window.innerWidth - dialogRect.width - viewportPadding;
             }
             
-            // Adjust to stay within viewport vertical bounds (less likely but good practice)
+            // Adjust vertical position to stay within viewport
             if (top < viewportPadding) {
                 top = viewportPadding;
             }
-             if (top + dialogRect.height > window.innerHeight - viewportPadding) {
+            if (top + dialogRect.height > window.innerHeight - viewportPadding) {
                 top = window.innerHeight - dialogRect.height - viewportPadding;
             }
 
-
             setPosition({ top: top + window.scrollY, left: left + window.scrollX, arrow });
-        }, 500); // Increased delay to ensure scroll completes
+        }, 500); // Wait for scroll to finish
 
         return () => clearTimeout(timer);
     }
     
-    return cleanupHighlight;
 }, [isTutorialOpen, isVisible, currentStep, steps]);
 
 
@@ -143,11 +136,11 @@ export function TutorialDialog({ pageKey, steps }: TutorialDialogProps) {
 
   return (
     <>
-      <div className="fixed inset-0 z-[100] bg-black/20" onClick={handleClose} />
+      <div className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm" onClick={handleClose} />
       <div 
           ref={dialogRef}
           className={cn(
-              "fixed z-[101] w-[350px] transition-all duration-300 animate-in fade-in zoom-in-95",
+              "fixed z-[102] w-[350px] transition-all duration-300 animate-in fade-in zoom-in-95",
               !isVisible && "opacity-0 pointer-events-none"
           )}
           style={{ top: `${position.top}px`, left: `${position.left}px` }}
