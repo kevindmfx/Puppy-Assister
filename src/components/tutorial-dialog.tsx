@@ -22,7 +22,7 @@ export function TutorialDialog({ pageKey, steps }: TutorialDialogProps) {
   const [currentStep, setCurrentStep] = useState(0);
   const previousTargetRef = useRef<Element | null>(null);
   const dialogRef = useRef<HTMLDivElement>(null);
-  const [position, setPosition] = useState({ top: 0, left: 0, arrow: 'top' });
+  const [position, setPosition] = useState({ top: 0, left: 0, arrow: 'bottom' });
   const [isVisible, setIsVisible] = useState(false);
 
   const cleanupHighlight = () => {
@@ -35,9 +35,11 @@ export function TutorialDialog({ pageKey, steps }: TutorialDialogProps) {
   useEffect(() => {
     if (isTutorialOpen) {
       document.body.style.overflow = 'hidden';
-      // Delay visibility to allow for smooth transition
       const timer = setTimeout(() => setIsVisible(true), 100);
-      return () => clearTimeout(timer);
+      return () => {
+        clearTimeout(timer);
+        document.body.style.overflow = '';
+      };
     } else {
       document.body.style.overflow = '';
       setIsVisible(false);
@@ -55,7 +57,7 @@ export function TutorialDialog({ pageKey, steps }: TutorialDialogProps) {
     const targetElement = document.querySelector(step.target) as HTMLElement;
     
     if (targetElement) {
-        cleanupHighlight(); // Clean up previous highlight first
+        cleanupHighlight();
         targetElement.classList.add("tutorial-highlight");
         previousTargetRef.current = targetElement;
         targetElement.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
@@ -69,17 +71,11 @@ export function TutorialDialog({ pageKey, steps }: TutorialDialogProps) {
             const offset = 15;
             const viewportPadding = 10;
 
-            let top, left, arrow;
+            let top, left;
 
-            // Try positioning below
-            if (targetRect.bottom + dialogRect.height + offset < window.innerHeight) {
-                top = targetRect.bottom + offset;
-                arrow = 'top';
-            } else { // Position above
-                top = targetRect.top - dialogRect.height - offset;
-                arrow = 'bottom';
-            }
-
+            // Position above the target
+            top = targetRect.top - dialogRect.height - offset;
+            
             // Center horizontally
             left = targetRect.left + (targetRect.width / 2) - (dialogRect.width / 2);
 
@@ -91,16 +87,13 @@ export function TutorialDialog({ pageKey, steps }: TutorialDialogProps) {
                 left = window.innerWidth - dialogRect.width - viewportPadding;
             }
             
-            // Adjust vertical position to stay within viewport
+            // Adjust vertical position to stay within viewport (if it goes off the top)
             if (top < viewportPadding) {
                 top = viewportPadding;
             }
-            if (top + dialogRect.height > window.innerHeight - viewportPadding) {
-                top = window.innerHeight - dialogRect.height - viewportPadding;
-            }
 
-            setPosition({ top: top + window.scrollY, left: left + window.scrollX, arrow });
-        }, 500); // Wait for scroll to finish
+            setPosition({ top: top + window.scrollY, left: left + window.scrollX, arrow: 'bottom' });
+        }, 500); 
 
         return () => clearTimeout(timer);
     }
@@ -136,7 +129,7 @@ export function TutorialDialog({ pageKey, steps }: TutorialDialogProps) {
 
   return (
     <>
-      <div className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm" onClick={handleClose} />
+      <div className="fixed inset-0 z-[100] bg-black/60" onClick={handleClose} />
       <div 
           ref={dialogRef}
           className={cn(
