@@ -18,7 +18,7 @@ export function Header() {
   const pathname = usePathname();
 
   const toolLinks = [
-    { href: '/', label: 'Gerador de Prompt', icon: Wand2 },
+    { href: '/prompt-generator', label: 'Gerador de Prompt', icon: Wand2 },
     { href: '/scene-generator', label: 'Gerador de Cenas', icon: Film },
   ];
 
@@ -43,7 +43,7 @@ export function Header() {
                   <SheetContent side="left" className="w-[300px] sm:w-[300px]">
                     <nav className="flex h-full flex-col gap-6 text-lg font-medium mt-6 px-2">
                       <Link
-                        href="#"
+                        href="/"
                         className="flex items-center gap-2 text-lg font-semibold mb-4"
                       >
                         <span className="font-headline text-lg font-bold">
@@ -129,9 +129,14 @@ export function Header() {
             </>
           ) : (
             <div className="flex w-full items-center justify-center">
-              <span className="font-headline text-lg font-bold">
-                Acesso Antecipado
-              </span>
+               <Link
+                href="/"
+                className="flex items-center gap-2 text-lg font-semibold"
+              >
+                <span className="font-headline text-lg font-bold">
+                  Puppy Assister
+                </span>
+              </Link>
             </div>
           )}
         </div>
