@@ -290,7 +290,23 @@ export function SceneGeneratorForm() {
                             name={`scenes.${index}.sceneName`}
                             render={({ field: formField }) => (
                                 <FormItem className="scene-name-input">
-                                <FormLabel className="text-base">Nome da Cena (Opcional)</FormLabel>
+                                <div className="flex items-center gap-2">
+                                    <FormLabel className="text-base">Nome da Cena (Opcional)</FormLabel>
+                                    <TooltipProvider>
+                                        <Tooltip>
+                                        <TooltipTrigger asChild>
+                                            <button type="button" className="focus:outline-none">
+                                            <HelpCircle className="h-4 w-4 cursor-help text-muted-foreground" />
+                                            </button>
+                                        </TooltipTrigger>
+                                        <TooltipContent>
+                                            <p className="max-w-xs">
+                                            Dê um nome para esta cena para facilitar a organização. Não afeta o resultado final.
+                                            </p>
+                                        </TooltipContent>
+                                        </Tooltip>
+                                    </TooltipProvider>
+                                </div>
                                 <FormControl>
                                     <Input
                                     placeholder={`Ex: Cena de Abertura`}
@@ -306,7 +322,23 @@ export function SceneGeneratorForm() {
                           name={`scenes.${index}.prompt`}
                           render={({ field: formField }) => (
                             <FormItem className="scene-prompt-input">
-                              <FormLabel className="text-base">Prompt da Cena</FormLabel>
+                              <div className="flex items-center gap-2">
+                                <FormLabel className="text-base">Prompt da Cena</FormLabel>
+                                <TooltipProvider>
+                                    <Tooltip>
+                                    <TooltipTrigger asChild>
+                                        <button type="button" className="focus:outline-none">
+                                        <HelpCircle className="h-4 w-4 cursor-help text-muted-foreground" />
+                                        </button>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                        <p className="max-w-xs">
+                                        Descreva a ação principal e os elementos visuais para esta cena específica.
+                                        </p>
+                                    </TooltipContent>
+                                    </Tooltip>
+                                </TooltipProvider>
+                              </div>
                               <FormControl>
                                 <Textarea
                                   placeholder="Ex: um close-up de um relógio derretendo em uma paisagem desértica"

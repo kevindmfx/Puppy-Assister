@@ -228,7 +228,23 @@ export function VisionWeaverForm() {
                 name="basePrompt"
                 render={({ field }) => (
                     <FormItem className="base-prompt-input">
-                    <FormLabel className="text-lg">Prompt Base</FormLabel>
+                    <div className="flex items-center gap-2">
+                        <FormLabel className="text-lg">Prompt Base</FormLabel>
+                        <TooltipProvider>
+                            <Tooltip>
+                            <TooltipTrigger asChild>
+                                <button type="button" className="focus:outline-none">
+                                <HelpCircle className="h-4 w-4 cursor-help text-muted-foreground" />
+                                </button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                                <p className="max-w-xs">
+                                Esta é a descrição principal da imagem que você deseja criar.
+                                </p>
+                            </TooltipContent>
+                            </Tooltip>
+                        </TooltipProvider>
+                    </div>
                     <FormControl>
                         <Textarea
                         placeholder="Ex: um astronauta surfando em uma onda cósmica"
