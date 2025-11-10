@@ -2,7 +2,6 @@ import type { Metadata } from 'next';
 import { Inter, Space_Grotesk } from 'next/font/google';
 import './globals.css';
 import { Header } from '@/components/layout/header';
-import { Footer } from '@/components/layout/footer';
 import { Toaster } from '@/components/ui/toaster';
 import { ThemeProvider } from '@/components/theme-provider';
 import { OptionsProvider } from '@/context/options-context';
@@ -51,7 +50,6 @@ export default function RootLayout({
                     <div className="relative flex min-h-dvh flex-col bg-background">
                         <Header />
                         <main className="flex flex-1 items-center justify-center">{children}</main>
-                        <Footer />
                     </div>
                     <Toaster />
                 </TutorialProvider>
