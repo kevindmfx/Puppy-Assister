@@ -46,10 +46,10 @@ export function LoginForm() {
 
   return (
     <Card className="w-full max-w-sm">
-      <CardHeader>
-        <CardTitle className="text-2xl">Login</CardTitle>
+      <CardHeader className="text-center">
+        <CardTitle className="text-2xl">Acesso Antecipado</CardTitle>
         <CardDescription>
-          Insira suas credenciais para acessar o sistema.
+          Insira suas credenciais para continuar.
         </CardDescription>
       </CardHeader>
       <CardContent>
