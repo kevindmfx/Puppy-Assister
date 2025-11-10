@@ -10,7 +10,7 @@ import { ArrowRight, Wand2, Film } from 'lucide-react';
 
 const tools = [
   {
-    title: 'Gerador de Prompts para Imagens',
+    title: 'Otimizador de prompts',
     description: 'Crie prompts detalhados para IAs de geração de imagem. Refine parâmetros como proporção, estilo e qualidade para obter o resultado perfeito.',
     href: '/prompt-generator',
     icon: Wand2,

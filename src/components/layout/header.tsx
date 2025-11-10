@@ -20,7 +20,7 @@ export function Header() {
   const isGeneratorPage = pathname === '/prompt-generator' || pathname === '/scene-generator';
 
   const toolLinks = [
-    { href: '/prompt-generator', label: 'Gerador de Prompts para Imagens', icon: Wand2 },
+    { href: '/prompt-generator', label: 'Otimizador de prompts', icon: Wand2 },
     { href: '/scene-generator', label: 'Gerador de Cenas', icon: Film },
   ];
 
