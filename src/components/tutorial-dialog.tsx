@@ -1,11 +1,10 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useTutorial } from "@/context/tutorial-context";
-import { ChevronLeft, ChevronRight, X } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "./ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "./ui/dialog";
-import { cn } from "@/lib/utils";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "./ui/card";
 
 interface TutorialStep {
   target: string;
@@ -20,16 +19,66 @@ interface TutorialDialogProps {
 export function TutorialDialog({ pageKey, steps }: TutorialDialogProps) {
   const { isTutorialOpen, closeTutorial, completeTutorial } = useTutorial();
   const [currentStep, setCurrentStep] = useState(0);
+  const highlightedElementRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
     if (isTutorialOpen) {
+      document.body.style.overflow = 'hidden';
+
+      if (highlightedElementRef.current) {
+        highlightedElementRef.current.classList.remove('tutorial-highlight');
+        highlightedElementRef.current.style.zIndex = '';
+        highlightedElementRef.current.style.position = '';
+      }
+
       const step = steps[currentStep];
       const targetElement = document.querySelector(step.target) as HTMLElement;
+
       if (targetElement) {
         targetElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+        const handleScrollEnd = () => {
+          targetElement.classList.add('tutorial-highlight');
+          targetElement.style.zIndex = '101'; 
+          targetElement.style.position = 'relative';
+          highlightedElementRef.current = targetElement;
+          
+          // Clean up the event listener
+          targetElement.removeEventListener('transitionend', handleScrollEnd);
+          window.removeEventListener('scroll', scrollEndListener);
+        };
+        
+        // A better way to detect scroll end
+        let scrollTimeout: NodeJS.Timeout;
+        const scrollEndListener = () => {
+          clearTimeout(scrollTimeout);
+          scrollTimeout = setTimeout(handleScrollEnd, 150);
+        };
+        
+        window.addEventListener('scroll', scrollEndListener);
+
+        // Fallback in case scroll event doesn't fire (e.g., element already in view)
+        setTimeout(handleScrollEnd, 500);
+      }
+    } else {
+      document.body.style.overflow = '';
+      if (highlightedElementRef.current) {
+        highlightedElementRef.current.classList.remove('tutorial-highlight');
+        highlightedElementRef.current.style.zIndex = '';
+        highlightedElementRef.current.style.position = '';
+        highlightedElementRef.current = null;
       }
     }
+
+    return () => {
+      document.body.style.overflow = '';
+      if (highlightedElementRef.current) {
+        highlightedElementRef.current.classList.remove('tutorial-highlight');
+        highlightedElementRef.current = null;
+      }
+    };
   }, [isTutorialOpen, currentStep, steps]);
+
 
   const handleNext = () => {
     if (currentStep < steps.length - 1) {
@@ -58,33 +107,35 @@ export function TutorialDialog({ pageKey, steps }: TutorialDialogProps) {
   const step = steps[currentStep];
 
   return (
-    <Dialog open={isTutorialOpen} onOpenChange={(isOpen) => !isOpen && handleClose()}>
-      <DialogContent className="sm:max-w-[425px]" onInteractOutside={(e) => e.preventDefault()}>
-        <DialogHeader>
-          <DialogTitle>Tutorial</DialogTitle>
-          <DialogDescription>
+    <>
+      <div className="fixed inset-0 z-[100] bg-black/60" onClick={handleClose} />
+      
+      <Card className="fixed top-20 right-4 z-[101] w-full max-w-sm">
+        <CardHeader>
+          <CardTitle>Tutorial</CardTitle>
+          <CardDescription>
             Passo {currentStep + 1} de {steps.length}
-          </DialogDescription>
-        </DialogHeader>
-        <div className="py-4">
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
           <p>{step?.content || "Carregando..."}</p>
-        </div>
-        <DialogFooter className="flex w-full justify-between">
+        </CardContent>
+        <CardFooter className="flex w-full justify-between">
           <Button variant="ghost" size="sm" onClick={handleClose}>
             Pular
           </Button>
           <div className="flex gap-2">
-            <Button variant="outline" size="sm" onClick={handlePrev} disabled={currentStep === 0}>
-              <ChevronLeft className="mr-1 h-4 w-4" />
-              Anterior
+            <Button variant="outline" size="icon" onClick={handlePrev} disabled={currentStep === 0}>
+              <ChevronLeft className="h-4 w-4" />
+              <span className="sr-only">Anterior</span>
             </Button>
-            <Button size="sm" onClick={handleNext}>
-              {currentStep === steps.length - 1 ? "Finalizar" : "Próximo"}
-              <ChevronRight className="ml-1 h-4 w-4" />
+            <Button size="icon" onClick={handleNext}>
+              <ChevronRight className="h-4 w-4" />
+              <span className="sr-only">{currentStep === steps.length - 1 ? "Finalizar" : "Próximo"}</span>
             </Button>
           </div>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        </CardFooter>
+      </Card>
+    </>
   );
 }
