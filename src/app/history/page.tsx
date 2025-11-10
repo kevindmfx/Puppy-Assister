@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useHistory } from "@/context/history-context";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Wand2, Film, History as HistoryIcon, HelpCircle } from "lucide-react";
+import { ArrowRight, Wand2, Film, History as HistoryIcon, HelpCircle, Trash2 } from "lucide-react";
 import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import {
   Table,
@@ -13,9 +13,21 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+
 
 export default function HistoryPage() {
-  const { history, getPromptSnippet } = useHistory();
+  const { history, getPromptSnippet, clearHistory } = useHistory();
 
   const formatHistoryDate = (date: string) => {
     return new Date(date).toLocaleString('pt-BR', {
@@ -32,10 +44,34 @@ export default function HistoryPage() {
   return (
     <div className="container py-12 w-full max-w-5xl">
         <div className="mb-12 flex flex-col items-center text-center">
-            <h1 className="font-headline text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl flex items-center gap-3">
-                <HistoryIcon className="h-10 w-10" />
-                Histórico de Gerações
-            </h1>
+            <div className="flex w-full justify-center items-center gap-4 relative">
+                <h1 className="font-headline text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl flex items-center gap-3">
+                    <HistoryIcon className="h-10 w-10" />
+                    Histórico de Gerações
+                </h1>
+                 {history.length > 0 && (
+                    <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                             <Button variant="destructive" size="icon" className="absolute -top-2 -right-4 sm:right-0">
+                                <Trash2 className="h-5 w-5" />
+                                <span className="sr-only">Limpar Histórico</span>
+                            </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                            <AlertDialogHeader>
+                            <AlertDialogTitle>Você tem certeza?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                                Esta ação não pode ser desfeita. Isso excluirá permanentemente todo o seu histórico de gerações.
+                            </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                            <AlertDialogAction onClick={clearHistory}>Continuar</AlertDialogAction>
+                            </AlertDialogFooter>
+                        </AlertDialogContent>
+                    </AlertDialog>
+                )}
+            </div>
             <p className="mt-4 max-w-[700px] text-muted-foreground md:text-xl flex items-center gap-2">
                 Aqui estão suas últimas gerações.
                 <TooltipProvider>
@@ -62,7 +98,7 @@ export default function HistoryPage() {
                     <TableHeader>
                         <TableRow>
                             <TableHead className="w-[120px]">Tipo</TableHead>
-                            <TableHead>Trecho</TableHead>
+                            <TableHead>Prompt Inicial</TableHead>
                             <TableHead className="w-[180px]">Data</TableHead>
                             <TableHead className="w-[150px] text-right">Ação</TableHead>
                         </TableRow>

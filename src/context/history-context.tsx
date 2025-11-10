@@ -19,6 +19,7 @@ interface HistoryContextType {
   addHistoryItem: (item: AddHistoryItemDTO) => void;
   getHistoryItem: (id: string) => HistoryItem | undefined;
   getPromptSnippet: (item: HistoryItem) => string;
+  clearHistory: () => void;
 }
 
 const HistoryContext = createContext<HistoryContextType | undefined>(undefined);
@@ -96,9 +97,20 @@ export const HistoryProvider: React.FC<{ children: React.ReactNode }> = ({ child
     return 'Nenhum prompt encontrado';
   };
 
+  const clearHistory = useCallback(() => {
+    setHistory([]);
+    if (!isServer) {
+        try {
+            localStorage.removeItem('generation-history');
+        } catch (error) {
+            console.error("Failed to clear history from localStorage", error);
+        }
+    }
+  }, []);
+
 
   return (
-    <HistoryContext.Provider value={{ history, addHistoryItem, getHistoryItem, getPromptSnippet }}>
+    <HistoryContext.Provider value={{ history, addHistoryItem, getHistoryItem, getPromptSnippet, clearHistory }}>
       {children}
     </HistoryContext.Provider>
   );
