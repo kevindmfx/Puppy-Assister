@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Wand2, Film, LogOut, HelpCircle, Menu } from 'lucide-react';
+import { Wand2, Film, LogOut, HelpCircle, Menu, BrainCircuit } from 'lucide-react';
 import { ModeToggle } from '../mode-toggle';
 import { SettingsPanel } from '../settings-panel';
 import { Button } from '@/components/ui/button';
@@ -10,15 +10,20 @@ import { useAuth } from '@/context/auth-context';
 import { useTutorial } from '@/context/tutorial-context';
 import { cn } from '@/lib/utils';
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from '@/components/ui/sheet';
+import { Separator } from '../ui/separator';
 
 export function Header() {
   const { isAuthenticated, logout } = useAuth();
   const { showTutorial } = useTutorial();
   const pathname = usePathname();
 
-  const navLinks = [
+  const toolLinks = [
     { href: '/', label: 'Gerador de Prompt', icon: Wand2 },
     { href: '/scene-generator', label: 'Gerador de Cenas', icon: Film },
+  ];
+
+  const aiLinks: any[] = [
+    // Futuros links de IA serão adicionados aqui
   ];
 
   return (
@@ -35,30 +40,70 @@ export function Header() {
                       <span className="sr-only">Abrir Menu</span>
                     </Button>
                   </SheetTrigger>
-                  <SheetContent side="left">
-                    <nav className="grid gap-6 text-lg font-medium mt-6">
+                  <SheetContent side="left" className="w-[300px] sm:w-[300px]">
+                    <nav className="flex h-full flex-col gap-6 text-lg font-medium mt-6 px-2">
                       <Link
                         href="#"
-                        className="flex items-center gap-2 text-lg font-semibold"
+                        className="flex items-center gap-2 text-lg font-semibold mb-4"
                       >
                         <span className="font-headline text-lg font-bold">
                           Puppy Assister
                         </span>
                       </Link>
-                      {navLinks.map((link) => (
-                         <SheetClose asChild key={link.href}>
-                            <Link
-                                href={link.href}
-                                className={cn(
-                                    "flex items-center gap-4 px-2.5 transition-colors hover:text-foreground",
-                                    pathname === link.href ? "text-foreground" : "text-muted-foreground"
+                      
+                      <div className="flex-1 space-y-4">
+                        <div>
+                            <h3 className="mb-2 px-2 text-sm font-semibold text-muted-foreground tracking-wider uppercase">
+                                Ferramentas
+                            </h3>
+                            <div className="grid gap-1">
+                                {toolLinks.map((link) => (
+                                <SheetClose asChild key={link.href}>
+                                    <Link
+                                        href={link.href}
+                                        className={cn(
+                                            "flex items-center gap-3 rounded-lg px-2 py-2 transition-all hover:bg-accent hover:text-foreground",
+                                            pathname === link.href ? "bg-accent text-foreground" : "text-muted-foreground"
+                                        )}
+                                    >
+                                        <link.icon className="h-5 w-5" />
+                                        {link.label}
+                                    </Link>
+                                </SheetClose>
+                                ))}
+                            </div>
+                        </div>
+
+                        <Separator />
+
+                        <div>
+                            <h3 className="mb-2 px-2 text-sm font-semibold text-muted-foreground tracking-wider uppercase">
+                                Inteligências Artificiais
+                            </h3>
+                             <div className="grid gap-1">
+                                {aiLinks.length > 0 ? aiLinks.map((link) => (
+                                <SheetClose asChild key={link.href}>
+                                    <Link
+                                        href={link.href}
+                                        className={cn(
+                                            "flex items-center gap-3 rounded-lg px-2 py-2 transition-all hover:bg-accent hover:text-foreground",
+                                            pathname === link.href ? "bg-accent text-foreground" : "text-muted-foreground"
+                                        )}
+                                    >
+                                        <link.icon className="h-5 w-5" />
+                                        {link.label}
+                                    </Link>
+                                </SheetClose>
+                                )) : (
+                                    <div className="flex items-center gap-3 rounded-lg px-2 py-2 text-muted-foreground">
+                                        <BrainCircuit className="h-5 w-5" />
+                                        <span>Em breve...</span>
+                                    </div>
                                 )}
-                            >
-                                <link.icon className="h-5 w-5" />
-                                {link.label}
-                            </Link>
-                        </SheetClose>
-                      ))}
+                            </div>
+                        </div>
+                      </div>
+
                     </nav>
                   </SheetContent>
                 </Sheet>
