@@ -17,6 +17,8 @@ export function Header() {
   const { showTutorial } = useTutorial();
   const pathname = usePathname();
 
+  const isGeneratorPage = pathname === '/prompt-generator' || pathname === '/scene-generator';
+
   const toolLinks = [
     { href: '/prompt-generator', label: 'Gerador de Prompt', icon: Wand2 },
     { href: '/scene-generator', label: 'Gerador de Cenas', icon: Film },
@@ -115,11 +117,15 @@ export function Header() {
               </div>
 
               <div className="flex items-center justify-end gap-2">
-                <Button variant="ghost" size="icon" onClick={showTutorial}>
-                  <HelpCircle className="h-5 w-5" />
-                  <span className="sr-only">Ajuda</span>
-                </Button>
-                <SettingsPanel />
+                {isGeneratorPage && (
+                  <>
+                    <Button variant="ghost" size="icon" onClick={showTutorial}>
+                      <HelpCircle className="h-5 w-5" />
+                      <span className="sr-only">Ajuda</span>
+                    </Button>
+                    <SettingsPanel />
+                  </>
+                )}
                 <ModeToggle />
                 <Button variant="ghost" size="icon" onClick={logout}>
                   <LogOut className="h-5 w-5" />
