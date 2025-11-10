@@ -48,9 +48,9 @@ export function Header() {
                     <nav className="flex h-full flex-col gap-6 text-lg font-medium mt-6 px-2">
                       <Link
                         href="/"
-                        className="flex items-center gap-2 text-lg font-semibold mb-4"
+                        className="flex items-center justify-center gap-2 text-lg font-semibold mb-4"
                       >
-                        <span className="font-headline text-lg font-bold">
+                        <span className="font-headline text-2xl font-bold">
                           Puppy Assister
                         </span>
                       </Link>
