@@ -19,7 +19,7 @@ export const TutorialProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const pathname = usePathname();
 
   const getPageKey = useCallback(() => {
-    if (pathname === '/') return 'prompt-generator';
+    if (pathname === '/prompt-generator') return 'prompt-generator';
     if (pathname === '/scene-generator') return 'scene-generator';
     return null;
   }, [pathname]);

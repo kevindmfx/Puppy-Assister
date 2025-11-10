@@ -20,7 +20,7 @@ export function Header() {
   const isGeneratorPage = pathname === '/prompt-generator' || pathname === '/scene-generator';
 
   const toolLinks = [
-    { href: '/prompt-generator', label: 'Gerador de Prompt', icon: Wand2 },
+    { href: '/prompt-generator', label: 'Gerador de Prompts para Imagens', icon: Wand2 },
     { href: '/scene-generator', label: 'Gerador de Cenas', icon: Film },
   ];
 
@@ -117,7 +117,7 @@ export function Header() {
                                         href="/history"
                                         className={cn(
                                             "flex items-center gap-3 rounded-lg px-2 py-2 transition-all hover:bg-accent hover:text-foreground",
-                                            pathname === '/history' ? "bg-accent text-foreground" : "text-muted-foreground"
+                                            pathname.startsWith('/history') ? "bg-accent text-foreground" : "text-muted-foreground"
                                         )}
                                     >
                                         <History className="h-5 w-5" />

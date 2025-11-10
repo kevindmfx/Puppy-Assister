@@ -96,7 +96,7 @@ DynamicSelectField.displayName = 'DynamicSelectField';
 const tutorialSteps = [
     {
       target: ".prompt-title",
-      content: "Bem-vindo ao Gerador de Prompt! Esta ferramenta ajuda você a criar prompts detalhados para IAs de geração de imagem.",
+      content: "Bem-vindo ao Gerador de Prompts para Imagens! Esta ferramenta ajuda você a criar prompts detalhados para IAs de geração de imagem.",
     },
     {
       target: ".base-prompt-input",
@@ -196,7 +196,17 @@ export function VisionWeaverForm() {
 
     if (values.outputType === 'midjourney') {
         generatedOutput = generateMidjourneyPrompt(values);
-        historyContent = generatedOutput;
+        // For midjourney, we still save a JSON structure for consistency in history
+        const { basePrompt, outputType, ...rest } = values;
+        const parameters: Record<string, string> = {};
+        promptOptions.forEach(option => {
+            const key = option.key;
+            const value = rest[key as keyof typeof rest];
+            if (!isNotApplicable(value)) {
+                parameters[key] = value!;
+            }
+        });
+        historyContent = JSON.stringify({ prompt: basePrompt, parameters, midjourneyPrompt: generatedOutput }, null, 2);
     } else {
         generatedOutput = generateJsonOutput(values);
         historyContent = generatedOutput;

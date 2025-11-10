@@ -10,14 +10,14 @@ import { ArrowRight, Wand2, Film } from 'lucide-react';
 
 const tools = [
   {
-    title: 'Gerador de Prompt',
+    title: 'Gerador de Prompts para Imagens',
     description: 'Crie prompts detalhados para IAs de geração de imagem. Refine parâmetros como proporção, estilo e qualidade para obter o resultado perfeito.',
     href: '/prompt-generator',
     icon: Wand2,
   },
   {
     title: 'Gerador de Cenas',
-    description: 'Desenvolva sequências de cenas para vídeos ou animações. Descreva cada clipe, ajuste os parâmetros e exporte no formato ideal para sua inteligencia artificial.',
+    description: 'Desenvolva sequências de cenas para vídeos ou animações. Descreva cada clipe, ajuste os parâmetros e exporte em no formato ideal para sua inteligencia artificial.',
     href: '/scene-generator',
     icon: Film,
   },

@@ -10,7 +10,7 @@ import { TutorialProvider } from '@/context/tutorial-context';
 import { HistoryProvider } from '@/context/history-context';
 
 export const metadata: Metadata = {
-  title: 'Gerador de Prompt',
+  title: 'Gerador de Prompts para Imagens',
   description: 'Gere prompts JSON para criação de imagens com IA.',
 };
 

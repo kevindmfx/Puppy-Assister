@@ -45,7 +45,7 @@ export function SettingsPanel() {
   const isSceneGenerator = pathname === '/scene-generator';
   const currentOptions = isSceneGenerator ? sceneOptions : promptOptions;
   const setCurrentOptions = isSceneGenerator ? setSceneOptions : setPromptOptions;
-  const panelTitle = isSceneGenerator ? "Gerador de Cenas" : "Gerador de Prompt";
+  const panelTitle = isSceneGenerator ? "Gerador de Cenas" : "Gerador de Prompts para Imagens";
 
   useEffect(() => {
     setMounted(true);
@@ -113,7 +113,7 @@ export function SettingsPanel() {
   };
 
   const handleAddField = () => {
-      setLocalOptions([...localOptions, { key: '', label: '', options: [{ value: 'off', label: 'OFF' }] }]);
+      setLocalOptions([...localOptions, { key: '', label: '', options: [{ value: 'off', label: 'OFF' }], description: '' }]);
   }
 
   const handleRemoveField = (fieldIndex: number) => {

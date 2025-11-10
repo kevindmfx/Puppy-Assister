@@ -80,11 +80,14 @@ export const HistoryProvider: React.FC<{ children: React.ReactNode }> = ({ child
       if (item.type === 'prompt' && parsedContent.prompt) {
         return parsedContent.prompt;
       }
+      if (item.type === 'prompt' && typeof parsedContent.midjourneyPrompt === 'string') {
+        return parsedContent.midjourneyPrompt.split('--')[0].trim();
+      }
       if (item.type === 'scene' && parsedContent.clip_01 && parsedContent.clip_01.prompt) {
         return parsedContent.clip_01.prompt;
       }
     } catch (e) {
-      // Not a JSON, maybe it's the old midjourney format
+      // Fallback for old string-only midjourney format
       if(item.type === 'prompt' && typeof item.content === 'string') {
         return item.content.split('--')[0].trim();
       }
