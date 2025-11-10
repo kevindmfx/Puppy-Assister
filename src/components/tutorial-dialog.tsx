@@ -20,7 +20,6 @@ export function TutorialDialog({ pageKey, steps }: TutorialDialogProps) {
   const { isTutorialOpen, closeTutorial, completeTutorial } = useTutorial();
   const [currentStep, setCurrentStep] = useState(0);
   const highlightedElementRef = useRef<HTMLElement | null>(null);
-  const [highlightStyle, setHighlightStyle] = useState<React.CSSProperties>({});
 
   useEffect(() => {
     const cleanupHighlight = () => {
@@ -28,7 +27,6 @@ export function TutorialDialog({ pageKey, steps }: TutorialDialogProps) {
         highlightedElementRef.current.classList.remove('tutorial-highlight');
         highlightedElementRef.current = null;
       }
-      setHighlightStyle({});
     };
 
     if (isTutorialOpen) {
@@ -42,42 +40,24 @@ export function TutorialDialog({ pageKey, steps }: TutorialDialogProps) {
 
       if (targetElement) {
         const handleHighlight = () => {
-          const rect = targetElement.getBoundingClientRect();
-          const padding = 16; // 1rem
-
-          setHighlightStyle({
-            position: 'absolute',
-            left: `${rect.left - padding}px`,
-            top: `${rect.top - padding}px`,
-            width: `${rect.width + padding * 2}px`,
-            height: `${rect.height + padding * 2}px`,
-            boxShadow: '0 0 0 9999px rgba(0, 0, 0, 0.6)',
-            borderRadius: 'var(--radius)',
-            zIndex: 100,
-            pointerEvents: 'none',
-          });
-          
           targetElement.classList.add('tutorial-highlight');
           highlightedElementRef.current = targetElement;
         };
 
         targetElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
-        // Use a combination of timeout and event listener for robustness
         let scrollTimeout: NodeJS.Timeout;
         const scrollEndListener = () => {
           clearTimeout(scrollTimeout);
-          scrollTimeout = setTimeout(handleHighlight, 150); // Delay to allow layout to settle
+          scrollTimeout = setTimeout(handleHighlight, 150); 
         };
         
-        // Use 'scrollend' if available, fallback to 'scroll' with timeout
         try {
           window.addEventListener('scrollend', scrollEndListener, { once: true });
         } catch (e) {
           window.addEventListener('scroll', scrollEndListener, { once: true });
         }
         
-        // Fallback for when the element is already in view and scroll event might not fire
         setTimeout(handleHighlight, 300);
       }
     } else {
@@ -118,7 +98,7 @@ export function TutorialDialog({ pageKey, steps }: TutorialDialogProps) {
 
   return (
     <>
-      <div style={highlightStyle} />
+      <div className="fixed inset-0 z-50 bg-black/70" />
       
       <Card className="fixed top-4 right-4 z-[102] w-full max-w-sm">
         <CardHeader>
