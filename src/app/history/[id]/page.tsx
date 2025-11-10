@@ -22,12 +22,7 @@ export default function HistoryDetailPage() {
   useEffect(() => {
     if (id) {
       const historyItem = getHistoryItem(id);
-      if (historyItem) {
-        setItem(historyItem);
-      } else {
-        // Optional: redirect if item not found
-        // router.push('/');
-      }
+      setItem(historyItem || null);
     }
   }, [id, getHistoryItem]);
   
@@ -53,11 +48,12 @@ export default function HistoryDetailPage() {
   if (!item) {
     return (
       <div className="container py-12 text-center">
-        <h1 className="font-headline text-2xl font-bold">Item não encontrado</h1>
-        <p className="text-muted-foreground">O item de histórico que você está procurando não foi encontrado.</p>
-        <Button onClick={() => router.push('/')} className="mt-4">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent mb-4 mx-auto" />
+        <h1 className="font-headline text-2xl font-bold">Carregando item...</h1>
+        <p className="text-muted-foreground">Se o item não carregar, ele pode não existir.</p>
+        <Button onClick={() => router.push('/history')} className="mt-4">
           <ArrowLeft className="mr-2 h-4 w-4" />
-          Voltar para Início
+          Voltar para o Histórico
         </Button>
       </div>
     );
@@ -65,14 +61,14 @@ export default function HistoryDetailPage() {
 
   const isPrompt = item.type === 'prompt';
   const Icon = isPrompt ? Wand2 : Film;
-  const title = isPrompt ? "Histórico de Prompt" : "Histórico de Cena";
+  const title = isPrompt ? "Detalhe do Prompt" : "Detalhe da Cena";
 
   return (
     <div className="container py-12 w-full max-w-4xl">
       <div className="mb-4">
-        <Button variant="ghost" onClick={() => router.back()}>
+        <Button variant="ghost" onClick={() => router.push('/history')}>
           <ArrowLeft className="mr-2 h-4 w-4" />
-          Voltar
+          Voltar para o Histórico
         </Button>
       </div>
       <Card className="w-full shadow-lg">

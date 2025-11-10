@@ -15,20 +15,19 @@ interface AddHistoryItemDTO {
 }
 
 interface HistoryContextType {
-  promptHistory: HistoryItem[];
-  sceneHistory: HistoryItem[];
+  history: HistoryItem[];
   addHistoryItem: (item: AddHistoryItemDTO) => void;
   getHistoryItem: (id: string) => HistoryItem | undefined;
+  getPromptSnippet: (item: HistoryItem) => string;
 }
 
 const HistoryContext = createContext<HistoryContextType | undefined>(undefined);
 
 const isServer = typeof window === 'undefined';
-const MAX_HISTORY_ITEMS = 20;
+const MAX_HISTORY_ITEMS = 50;
 
 export const HistoryProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [promptHistory, setPromptHistory] = useState<HistoryItem[]>([]);
-  const [sceneHistory, setSceneHistory] = useState<HistoryItem[]>([]);
+  const [history, setHistory] = useState<HistoryItem[]>([]);
 
   useEffect(() => {
     if (isServer) return;
@@ -37,11 +36,8 @@ export const HistoryProvider: React.FC<{ children: React.ReactNode }> = ({ child
       const storedHistory = localStorage.getItem('generation-history');
       if (storedHistory) {
         const parsed = JSON.parse(storedHistory);
-        if (Array.isArray(parsed.promptHistory)) {
-          setPromptHistory(parsed.promptHistory.sort((a: HistoryItem, b: HistoryItem) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()));
-        }
-        if (Array.isArray(parsed.sceneHistory)) {
-          setSceneHistory(parsed.sceneHistory.sort((a: HistoryItem, b: HistoryItem) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()));
+        if (Array.isArray(parsed)) {
+            setHistory(parsed.sort((a: HistoryItem, b: HistoryItem) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()));
         }
       }
     } catch (error) {
@@ -50,14 +46,10 @@ export const HistoryProvider: React.FC<{ children: React.ReactNode }> = ({ child
     }
   }, []);
 
-  const saveHistory = useCallback((prompts: HistoryItem[], scenes: HistoryItem[]) => {
+  const saveHistory = useCallback((historyItems: HistoryItem[]) => {
     if (isServer) return;
     try {
-      const historyToStore = {
-        promptHistory: prompts,
-        sceneHistory: scenes,
-      };
-      localStorage.setItem('generation-history', JSON.stringify(historyToStore));
+      localStorage.setItem('generation-history', JSON.stringify(historyItems));
     } catch (error) {
       console.error("Failed to save history to localStorage", error);
     }
@@ -70,29 +62,40 @@ export const HistoryProvider: React.FC<{ children: React.ReactNode }> = ({ child
       timestamp: new Date().toISOString(),
     };
 
-    if (newItem.type === 'prompt') {
-      setPromptHistory(prev => {
+    setHistory(prev => {
         const updated = [newItem, ...prev].slice(0, MAX_HISTORY_ITEMS);
-        saveHistory(updated, sceneHistory);
+        saveHistory(updated);
         return updated;
-      });
-    } else {
-      setSceneHistory(prev => {
-        const updated = [newItem, ...prev].slice(0, MAX_HISTORY_ITEMS);
-        saveHistory(promptHistory, updated);
-        return updated;
-      });
-    }
-  }, [promptHistory, sceneHistory, saveHistory]);
+    });
+
+  }, [saveHistory]);
   
   const getHistoryItem = useCallback((id: string): HistoryItem | undefined => {
-      const allHistory = [...promptHistory, ...sceneHistory];
-      return allHistory.find(item => item.id === id);
-  }, [promptHistory, sceneHistory]);
+      return history.find(item => item.id === id);
+  }, [history]);
+
+  const getPromptSnippet = (item: HistoryItem): string => {
+    try {
+      const parsedContent = JSON.parse(item.content);
+      if (item.type === 'prompt' && parsedContent.prompt) {
+        return parsedContent.prompt;
+      }
+      if (item.type === 'scene' && parsedContent.clip_01 && parsedContent.clip_01.prompt) {
+        return parsedContent.clip_01.prompt;
+      }
+    } catch (e) {
+      // Not a JSON, maybe it's the old midjourney format
+      if(item.type === 'prompt' && typeof item.content === 'string') {
+        return item.content.split('--')[0].trim();
+      }
+      return 'Conteúdo inválido';
+    }
+    return 'Nenhum prompt encontrado';
+  };
 
 
   return (
-    <HistoryContext.Provider value={{ promptHistory, sceneHistory, addHistoryItem, getHistoryItem }}>
+    <HistoryContext.Provider value={{ history, addHistoryItem, getHistoryItem, getPromptSnippet }}>
       {children}
     </HistoryContext.Provider>
   );
