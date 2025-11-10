@@ -21,6 +21,7 @@ export function TutorialDialog({ pageKey, steps }: TutorialDialogProps) {
   const { isTutorialOpen, closeTutorial, completeTutorial } = useTutorial();
   const [currentStep, setCurrentStep] = useState(0);
   const previousTargetRef = useRef<Element | null>(null);
+  const dialogRef = useRef<HTMLDivElement>(null);
   const [position, setPosition] = useState({ top: 0, left: 0, arrow: 'top' });
   const [isVisible, setIsVisible] = useState(false);
 
@@ -47,50 +48,71 @@ export function TutorialDialog({ pageKey, steps }: TutorialDialogProps) {
   }, [isTutorialOpen]);
   
   useEffect(() => {
-    if (isTutorialOpen && steps.length > 0) {
-      cleanupHighlight();
-      
-      const step = steps[currentStep];
-      const targetElement = document.querySelector(step.target) as HTMLElement;
-      
-      if (targetElement) {
+    if (!isTutorialOpen || !isVisible || steps.length === 0) {
+      if (isVisible) setIsVisible(false);
+      return;
+    }
+
+    cleanupHighlight();
+    
+    const step = steps[currentStep];
+    const targetElement = document.querySelector(step.target) as HTMLElement;
+    
+    if (targetElement) {
         targetElement.classList.add("tutorial-highlight");
-        targetElement.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
         previousTargetRef.current = targetElement;
-        
-        // Timeout to wait for scroll to finish before calculating position
+        targetElement.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+
         const timer = setTimeout(() => {
             const targetRect = targetElement.getBoundingClientRect();
-            const dialogWidth = 350; 
-            const dialogHeight = 220; 
+            const dialogElement = dialogRef.current;
+            if (!dialogElement) return;
+
+            const dialogRect = dialogElement.getBoundingClientRect();
             const offset = 15;
+            const viewportPadding = 10;
 
-            let top = targetRect.bottom + offset;
-            let left = targetRect.left + (targetRect.width / 2) - (dialogWidth / 2);
-            let arrow = 'top';
+            let top, left, arrow;
 
-            // Flip to top if not enough space at the bottom
-            if (top + dialogHeight > window.innerHeight) {
-              top = targetRect.top - dialogHeight - offset;
-              arrow = 'bottom';
+            // Decide if there's enough space below the target
+            if (targetRect.bottom + dialogRect.height + offset < window.innerHeight) {
+                // Position below
+                top = targetRect.bottom + offset;
+                arrow = 'top';
+            } else {
+                // Position above
+                top = targetRect.top - dialogRect.height - offset;
+                arrow = 'bottom';
             }
-            // Adjust left position to stay within viewport
-            if (left < offset) {
-                left = offset;
+
+            // Center horizontally
+            left = targetRect.left + (targetRect.width / 2) - (dialogRect.width / 2);
+
+            // Adjust to stay within viewport horizontal bounds
+            if (left < viewportPadding) {
+                left = viewportPadding;
             }
-            if (left + dialogWidth > window.innerWidth - offset) {
-                left = window.innerWidth - dialogWidth - offset;
+            if (left + dialogRect.width > window.innerWidth - viewportPadding) {
+                left = window.innerWidth - dialogRect.width - viewportPadding;
             }
+            
+            // Adjust to stay within viewport vertical bounds (less likely but good practice)
+            if (top < viewportPadding) {
+                top = viewportPadding;
+            }
+             if (top + dialogRect.height > window.innerHeight - viewportPadding) {
+                top = window.innerHeight - dialogRect.height - viewportPadding;
+            }
+
 
             setPosition({ top: top + window.scrollY, left: left + window.scrollX, arrow });
-        }, 300); // Adjust delay as needed
+        }, 500); // Increased delay to ensure scroll completes
 
         return () => clearTimeout(timer);
-      }
     }
     
     return cleanupHighlight;
-  }, [isTutorialOpen, currentStep, steps]);
+}, [isTutorialOpen, isVisible, currentStep, steps]);
 
 
   const handleNext = () => {
@@ -113,56 +135,59 @@ export function TutorialDialog({ pageKey, steps }: TutorialDialogProps) {
     setCurrentStep(0);
   };
   
-  if (!isTutorialOpen || !isVisible) {
+  if (!isTutorialOpen) {
     return null;
   }
 
   const step = steps[currentStep];
 
   return (
-    <div className="fixed inset-0 z-[100]" onClick={handleClose}>
-        <div 
-            className={cn(
-                "fixed z-[101] w-[350px] transition-all duration-300 animate-in fade-in zoom-in-95",
-            )}
-            style={{ top: `${position.top}px`, left: `${position.left}px` }}
-            onClick={(e) => e.stopPropagation()}
-        >
-          <Card className="shadow-2xl relative">
-              <div className={cn(
-                  "absolute h-4 w-4 rotate-45 bg-card border-border",
-                  position.arrow === 'top' && "-top-2 left-1/2 -translate-x-1/2 border-l border-t",
-                  position.arrow === 'bottom' && "-bottom-2 left-1/2 -translate-x-1/2 border-r border-b"
-              )}></div>
-              <Button variant="ghost" size="icon" className="absolute right-2 top-2 h-6 w-6" onClick={handleClose}>
-                  <X className="h-4 w-4"/>
-              </Button>
-              <CardHeader>
-                  <CardTitle>Bem-vindo ao Puppy Assister!</CardTitle>
-                  <CardDescription>
-                      Passo {currentStep + 1} de {steps.length}
-                  </CardDescription>
-              </CardHeader>
-              <CardContent>
-                  <p>{step.content}</p>
-              </CardContent>
-              <CardFooter className="flex w-full justify-between">
-                  <Button variant="ghost" size="sm" onClick={handleClose}>
-                      Pular Tutorial
-                  </Button>
-                  <div className="flex gap-2">
-                      <Button variant="outline" size="sm" onClick={handlePrev} disabled={currentStep === 0}>
-                          <ChevronLeft className="mr-1 h-4 w-4" />
-                          Anterior
-                      </Button>
-                      <Button size="sm" onClick={handleNext}>
-                          {currentStep === steps.length - 1 ? "Finalizar" : "Próximo"}
-                          <ChevronRight className="ml-1 h-4 w-4" />
-                      </Button>
-                  </div>
-              </CardFooter>
-            </Card>
-        </div>
-    </div>
+    <>
+      <div className="fixed inset-0 z-[100] bg-black/20" onClick={handleClose} />
+      <div 
+          ref={dialogRef}
+          className={cn(
+              "fixed z-[101] w-[350px] transition-all duration-300 animate-in fade-in zoom-in-95",
+              !isVisible && "opacity-0 pointer-events-none"
+          )}
+          style={{ top: `${position.top}px`, left: `${position.left}px` }}
+          onClick={(e) => e.stopPropagation()}
+      >
+        <Card className="shadow-2xl relative">
+            <div className={cn(
+                "absolute h-4 w-4 rotate-45 bg-card border-border",
+                position.arrow === 'top' && "-top-2 left-1/2 -translate-x-1/2 border-l border-t",
+                position.arrow === 'bottom' && "-bottom-2 left-1/2 -translate-x-1/2 border-r border-b"
+            )}></div>
+             <CardHeader>
+                <Button variant="ghost" size="icon" className="absolute right-2 top-2 h-6 w-6" onClick={handleClose}>
+                    <X className="h-4 w-4"/>
+                </Button>
+                <CardTitle>Tutorial</CardTitle>
+                <CardDescription>
+                    Passo {currentStep + 1} de {steps.length}
+                </CardDescription>
+            </CardHeader>
+            <CardContent>
+                <p>{step?.content || "Carregando..."}</p>
+            </CardContent>
+            <CardFooter className="flex w-full justify-between">
+                <Button variant="ghost" size="sm" onClick={handleClose}>
+                    Pular
+                </Button>
+                <div className="flex gap-2">
+                    <Button variant="outline" size="sm" onClick={handlePrev} disabled={currentStep === 0}>
+                        <ChevronLeft className="mr-1 h-4 w-4" />
+                        Anterior
+                    </Button>
+                    <Button size="sm" onClick={handleNext}>
+                        {currentStep === steps.length - 1 ? "Finalizar" : "Próximo"}
+                        <ChevronRight className="ml-1 h-4 w-4" />
+                    </Button>
+                </div>
+            </CardFooter>
+          </Card>
+      </div>
+    </>
   );
 }
