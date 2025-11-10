@@ -58,7 +58,9 @@ const DynamicSelectField = memo(({
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
+                    <button type="button" className="focus:outline-none">
+                      <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
+                    </button>
                   </TooltipTrigger>
                   <TooltipContent>
                     <p className="max-w-xs">{description}</p>
