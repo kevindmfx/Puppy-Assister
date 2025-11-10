@@ -1,5 +1,6 @@
 {
   "/history/[id]/page": "app/history/[id]/page.js",
+  "/history/page": "app/history/page.js",
   "/login/page": "app/login/page.js",
   "/page": "app/page.js",
   "/prompt-generator/page": "app/prompt-generator/page.js",

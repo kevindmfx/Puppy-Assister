@@ -192,15 +192,21 @@ export function VisionWeaverForm() {
 
   function onSubmit(values: FormValues) {
     let generatedOutput = "";
+    let historyContent = "";
+
     if (values.outputType === 'midjourney') {
         generatedOutput = generateMidjourneyPrompt(values);
+        historyContent = generatedOutput;
     } else {
         generatedOutput = generateJsonOutput(values);
-        addHistoryItem({
-          type: 'prompt',
-          content: generatedOutput,
-        });
+        historyContent = generatedOutput;
     }
+
+    addHistoryItem({
+        type: 'prompt',
+        content: historyContent,
+    });
+    
     setOutput(generatedOutput);
     setHasCopied(false);
   }
