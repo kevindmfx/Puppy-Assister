@@ -22,61 +22,49 @@ export function TutorialDialog({ pageKey, steps }: TutorialDialogProps) {
   const highlightedElementRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
-    if (isTutorialOpen) {
-      document.body.style.overflow = 'hidden';
-
+    const cleanup = () => {
+      document.body.style.overflow = '';
       if (highlightedElementRef.current) {
         highlightedElementRef.current.classList.remove('tutorial-highlight');
         highlightedElementRef.current.style.zIndex = '';
         highlightedElementRef.current.style.position = '';
+        highlightedElementRef.current = null;
       }
-
+    };
+  
+    if (isTutorialOpen) {
+      document.body.style.overflow = 'hidden';
+      // Clean up previous highlight before applying a new one
+      cleanup();
+  
       const step = steps[currentStep];
-      const targetElement = document.querySelector(step.target) as HTMLElement;
+      if (!step) return;
 
+      const targetElement = document.querySelector(step.target) as HTMLElement;
+  
       if (targetElement) {
         targetElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-
+  
         const handleScrollEnd = () => {
           targetElement.classList.add('tutorial-highlight');
-          targetElement.style.zIndex = '101'; 
-          targetElement.style.position = 'relative';
           highlightedElementRef.current = targetElement;
-          
-          // Clean up the event listener
-          targetElement.removeEventListener('transitionend', handleScrollEnd);
-          window.removeEventListener('scroll', scrollEndListener);
         };
-        
-        // A better way to detect scroll end
+  
         let scrollTimeout: NodeJS.Timeout;
         const scrollEndListener = () => {
           clearTimeout(scrollTimeout);
           scrollTimeout = setTimeout(handleScrollEnd, 150);
         };
-        
-        window.addEventListener('scroll', scrollEndListener);
-
-        // Fallback in case scroll event doesn't fire (e.g., element already in view)
-        setTimeout(handleScrollEnd, 500);
+  
+        window.addEventListener('scroll', scrollEndListener, { once: true });
+        // Fallback for when the element is already in view and scroll event might not fire
+        setTimeout(handleScrollEnd, 300); 
       }
     } else {
-      document.body.style.overflow = '';
-      if (highlightedElementRef.current) {
-        highlightedElementRef.current.classList.remove('tutorial-highlight');
-        highlightedElementRef.current.style.zIndex = '';
-        highlightedElementRef.current.style.position = '';
-        highlightedElementRef.current = null;
-      }
+      cleanup();
     }
-
-    return () => {
-      document.body.style.overflow = '';
-      if (highlightedElementRef.current) {
-        highlightedElementRef.current.classList.remove('tutorial-highlight');
-        highlightedElementRef.current = null;
-      }
-    };
+  
+    return cleanup;
   }, [isTutorialOpen, currentStep, steps]);
 
 
@@ -110,7 +98,7 @@ export function TutorialDialog({ pageKey, steps }: TutorialDialogProps) {
     <>
       <div className="fixed inset-0 z-[100] bg-black/60" onClick={handleClose} />
       
-      <Card className="fixed top-20 right-4 z-[101] w-full max-w-sm">
+      <Card className="fixed top-4 right-4 z-[102] w-full max-w-sm">
         <CardHeader>
           <CardTitle>Tutorial</CardTitle>
           <CardDescription>

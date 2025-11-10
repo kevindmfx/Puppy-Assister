@@ -85,6 +85,8 @@
   .tutorial-highlight {
     background-color: hsl(var(--background));
     border-radius: var(--radius);
+    z-index: 101 !important;
+    position: relative !important;
     transition: box-shadow 0.3s ease-in-out;
     box-shadow: 0 0 0 4px hsl(var(--primary));
   }
