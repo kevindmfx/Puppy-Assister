@@ -1,23 +1,24 @@
 "use client";
 
 import Link from 'next/link';
-import { Menu, Wand2, Film, LogOut, HelpCircle } from 'lucide-react';
+import { usePathname } from 'next/navigation';
+import { Wand2, Film, LogOut, HelpCircle } from 'lucide-react';
 import { ModeToggle } from '../mode-toggle';
 import { SettingsPanel } from '../settings-panel';
 import { Button } from '@/components/ui/button';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import { useAuth } from '@/context/auth-context';
 import { useTutorial } from '@/context/tutorial-context';
+import { cn } from '@/lib/utils';
 
 export function Header() {
   const { isAuthenticated, logout } = useAuth();
   const { showTutorial } = useTutorial();
+  const pathname = usePathname();
+
+  const navLinks = [
+    { href: '/', label: 'Gerador de Prompt', icon: Wand2 },
+    { href: '/scene-generator', label: 'Gerador de Cenas', icon: Film },
+  ];
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -25,36 +26,47 @@ export function Header() {
         <div className="flex flex-1 items-center justify-between">
           {isAuthenticated ? (
             <>
-              <div className="flex items-center">
-                <DropdownMenu modal={false}>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" className="mr-2">
-                      <Menu className="h-6 w-6" />
-                      <span className="sr-only">Abrir Menu</span>
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="start">
-                    <DropdownMenuItem asChild>
-                      <Link href="/">
-                        <Wand2 className="mr-2 h-4 w-4" />
-                        <span>Gerador de Prompt</span>
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link href="/scene-generator">
-                        <Film className="mr-2 h-4 w-4" />
-                        <span>Gerador de Cenas</span>
-                      </Link>
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+              <div className="flex items-center gap-6">
                 <Link href="/" className="flex items-center space-x-2">
                   <span className="font-headline text-lg font-bold">
                     Puppy Assister
                   </span>
                 </Link>
+                <nav className="hidden items-center gap-4 md:flex">
+                    {navLinks.map((link) => (
+                        <Link
+                        key={link.href}
+                        href={link.href}
+                        className={cn(
+                            "flex items-center gap-2 text-sm font-medium transition-colors hover:text-primary",
+                            pathname === link.href ? "text-primary" : "text-muted-foreground"
+                        )}
+                        >
+                        <link.icon className="h-4 w-4" />
+                        {link.label}
+                        </Link>
+                    ))}
+                </nav>
               </div>
+
               <div className="flex items-center justify-end gap-2">
+                 <div className="flex items-center gap-4 md:hidden">
+                    {navLinks.map((link) => (
+                        <Link
+                        key={link.href}
+                        href={link.href}
+                        className={cn(
+                            "flex items-center gap-2 text-sm font-medium transition-colors hover:text-primary",
+                            pathname === link.href ? "text-primary" : "text-muted-foreground"
+                        )}
+                        >
+                         <Button variant="ghost" size="icon">
+                            <link.icon className="h-5 w-5" />
+                             <span className="sr-only">{link.label}</span>
+                        </Button>
+                        </Link>
+                    ))}
+                </div>
                 <Button variant="ghost" size="icon" onClick={showTutorial}>
                   <HelpCircle className="h-5 w-5" />
                   <span className="sr-only">Ajuda</span>
