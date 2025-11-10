@@ -149,8 +149,8 @@ export function Header() {
                     <SettingsPanel />
                   </>
                 )}
-                <ModeToggle />
                 <GlobalSettingsMenu />
+                <ModeToggle />
                 <Button variant="ghost" size="icon" onClick={logout}>
                   <LogOut className="h-5 w-5" />
                   <span className="sr-only">Sair</span>
