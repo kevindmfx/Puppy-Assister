@@ -19,6 +19,7 @@ export function Header() {
   const pathname = usePathname();
 
   const isGeneratorPage = pathname === '/prompt-generator' || pathname === '/scene-generator';
+  const isHomePage = pathname === '/';
 
   const toolLinks = [
     { href: '/prompt-generator', label: 'Otimizador de prompts', icon: Wand2 },
@@ -149,7 +150,7 @@ export function Header() {
                     <SettingsPanel />
                   </>
                 )}
-                <GlobalSettingsMenu />
+                {!isHomePage && <GlobalSettingsMenu />}
                 <ModeToggle />
                 <Button variant="ghost" size="icon" onClick={logout}>
                   <LogOut className="h-5 w-5" />
