@@ -3,6 +3,7 @@ export type Option = { value: string; label: string };
 export type FormOption = {
     key: string;
     label: string;
+    description: string;
     options: Option[];
 }
 
@@ -10,6 +11,7 @@ export const INITIAL_PROMPT_OPTIONS: FormOption[] = [
     {
         key: 'aspectRatio',
         label: 'Proporção (Aspect Ratio)',
+        description: 'Define a proporção entre a largura e a altura da imagem. "16:9" é uma paisagem, "9:16" é um retrato, "1:1" é um quadrado.',
         options: [
             { value: 'off', label: 'OFF' },
             { value: '1:1', label: '1:1 (Quadrado)' },
@@ -23,6 +25,7 @@ export const INITIAL_PROMPT_OPTIONS: FormOption[] = [
     {
         key: 'chaos',
         label: 'Caos (Chaos)',
+        description: 'Controla quão variadas e inesperadas serão as imagens geradas. Valores mais altos criam resultados mais abstratos e surpreendentes.',
         options: [
             { value: 'off', label: 'OFF' },
             { value: '0', label: '0 (Consistente)' },
@@ -35,6 +38,7 @@ export const INITIAL_PROMPT_OPTIONS: FormOption[] = [
     {
         key: 'quality',
         label: 'Qualidade',
+        description: 'Ajusta o tempo de renderização e os detalhes da imagem. Valores mais altos levam mais tempo, mas produzem maior qualidade.',
         options: [
             { value: 'off', label: 'OFF' },
             { value: '.25', label: '0.25 (Rápido)' },
@@ -45,20 +49,22 @@ export const INITIAL_PROMPT_OPTIONS: FormOption[] = [
     {
         key: 'style',
         label: 'Estilo',
+        description: 'Aplica um estilo visual específico à sua imagem, influenciando a estética geral.',
         options: [
             { value: 'off', label: 'OFF' },
-            { value: 'raw', label: 'Raw' },
+            { value: 'raw', label: 'Raw (Menos estilizado)' },
             { value: '4a', label: 'Estilo 4a (antigo)' },
             { value: '4b', label: 'Estilo 4b (antigo)' },
             { value: '4c', label: 'Estilo 4c (antigo)' },
-            { value: 'cute', label: 'Niji-v5 Cute' },
-            { value: 'expressive', label: 'Niji-v5 Expressive' },
-            { value: 'scenic', label: 'Niji-v5 Scenic' },
+            { value: 'cute', label: 'Niji-v5 Cute (Fofo)' },
+            { value: 'expressive', label: 'Niji-v5 Expressive (Expressivo)' },
+            { value: 'scenic', label: 'Niji-v5 Scenic (Cenário)' },
         ]
     },
     {
         key: 'stylize',
         label: 'Estilização (Stylize)',
+        description: 'Controla a intensidade da estética padrão do Midjourney. Valores mais baixos respeitam mais o prompt, valores altos são mais "artísticos".',
         options: [
             { value: 'off', label: 'OFF' },
             { value: '0', label: '0 (Desligado)' },
@@ -72,6 +78,7 @@ export const INITIAL_PROMPT_OPTIONS: FormOption[] = [
     {
         key: 'version',
         label: 'Versão do Midjourney',
+        description: 'Escolhe qual versão do algoritmo do Midjourney usar. Versões mais novas oferecem mais realismo e coerência.',
         options: [
             { value: 'off', label: 'OFF' },
             { value: '6', label: 'V6 (Mais recente)' },
@@ -84,6 +91,7 @@ export const INITIAL_PROMPT_OPTIONS: FormOption[] = [
     {
         key: 'camera',
         label: 'Câmera / Lente',
+        description: 'Simula diferentes tipos de câmeras, lentes e ângulos de filmagem para dar uma aparência cinematográfica à imagem.',
         options: [
             { value: 'off', label: 'OFF' },
             { value: 'portrait', label: 'Retrato' },
@@ -103,6 +111,7 @@ export const INITIAL_SCENE_OPTIONS: FormOption[] = [
     {
         key: 'cameraType',
         label: 'Tipo de Câmera',
+        description: 'Define o estilo da filmagem. "Cinematic" para um visual de cinema, "Handheld" para uma sensação de câmera na mão.',
         options: [
             { value: 'off', label: 'OFF' },
             { value: 'cinematic', label: 'Cinematic' },
@@ -114,6 +123,7 @@ export const INITIAL_SCENE_OPTIONS: FormOption[] = [
     {
         key: 'lens',
         label: 'Lente',
+        description: 'Simula o efeito de diferentes lentes. "Wide" para uma visão ampla, "Macro" para detalhes em close-up.',
         options: [
             { value: 'off', label: 'OFF' },
             { value: 'wide', label: 'Wide Angle' },
@@ -125,6 +135,7 @@ export const INITIAL_SCENE_OPTIONS: FormOption[] = [
     {
         key: 'timeOfDay',
         label: 'Horário do Dia',
+        description: 'Define a iluminação e a atmosfera da cena com base no horário. "Golden Hour" para tons quentes, "Blue Hour" para tons frios.',
         options: [
             { value: 'off', label: 'OFF' },
             { value: 'day', label: 'Day' },
@@ -138,6 +149,7 @@ export const INITIAL_SCENE_OPTIONS: FormOption[] = [
     {
         key: 'feeling',
         label: 'Sentimento',
+        description: 'Define o tom emocional da cena, influenciando cores e iluminação para transmitir uma sensação específica.',
         options: [
             { value: 'off', label: 'OFF' },
             { value: 'happy', label: 'Happy' },
@@ -151,6 +163,7 @@ export const INITIAL_SCENE_OPTIONS: FormOption[] = [
     {
         key: 'color',
         label: 'Coloração',
+        description: 'Controla a paleta de cores da cena. "Vibrant" para cores intensas, "Monochromatic" para tons de uma única cor.',
         options: [
             { value: 'off', label: 'OFF' },
             { value: 'vibrant', label: 'Vibrant' },
@@ -163,6 +176,7 @@ export const INITIAL_SCENE_OPTIONS: FormOption[] = [
     {
         key: 'sceneQuality',
         label: 'Qualidade da Cena',
+        description: 'Define a resolução e a nitidez do vídeo. "4K" para máxima qualidade, "Grainy" para um visual de filme antigo.',
         options: [
             { value: 'off', label: 'OFF' },
             { value: '4K', label: '4K' },
@@ -175,6 +189,7 @@ export const INITIAL_SCENE_OPTIONS: FormOption[] = [
     {
         key: 'sceneStyle',
         label: 'Estilo da Cena',
+        description: 'Define a estética geral do vídeo. "Realistic" para um visual de vida real, "Animated" para um estilo de animação.',
         options: [
             { value: 'off', label: 'OFF' },
             { value: 'realistic', label: 'Realistic' },
@@ -187,6 +202,7 @@ export const INITIAL_SCENE_OPTIONS: FormOption[] = [
     {
         key: 'framing',
         label: 'Enquadramento',
+        description: 'Define o tipo de plano da câmera. "Close-up" para focar em um rosto, "Long Shot" para mostrar o ambiente completo.',
         options: [
             { value: 'off', label: 'OFF' },
             { value: 'close-up', label: 'Close-up' },
@@ -199,6 +215,7 @@ export const INITIAL_SCENE_OPTIONS: FormOption[] = [
     {
         key: 'texture',
         label: 'Textura',
+        description: 'Controla a aparência das superfícies na cena. "Glossy" para superfícies brilhantes, "Matte" para foscas.',
         options: [
             { value: 'off', label: 'OFF' },
             { value: 'smooth', label: 'Smooth' },
@@ -210,6 +227,7 @@ export const INITIAL_SCENE_OPTIONS: FormOption[] = [
     {
         key: 'cameraMovement',
         label: 'Movimento da Câmera',
+        description: 'Adiciona movimento à câmera. "Pan" para mover horizontalmente, "Zoom In" para aproximar.',
         options: [
             { value: 'off', label: 'OFF' },
             { value: 'pan', label: 'Pan' },
@@ -222,7 +240,8 @@ export const INITIAL_SCENE_OPTIONS: FormOption[] = [
     },
     {
         key: 'fps',
-        label: 'FPS',
+        label: 'FPS (Quadros por Segundo)',
+        description: 'Define a taxa de quadros do vídeo. "24 FPS" para um visual de cinema, "60 FPS" para movimentos mais suaves ou câmera lenta.',
         options: [
             { value: 'off', label: 'OFF' },
             { value: '24', label: '24 FPS (Cinematic)' },

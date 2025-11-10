@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useMemo, memo } from "react";
@@ -26,9 +25,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { Clipboard, ClipboardCheck, Sparkles, PlusCircle, Trash2, FileText } from "lucide-react";
+import { Clipboard, ClipboardCheck, Sparkles, PlusCircle, Trash2, FileText, HelpCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useOptions } from "@/context/options-context";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip";
+import { TutorialDialog } from "./tutorial-dialog";
 
 const DynamicSelectField = memo(({
   control,
@@ -36,12 +37,14 @@ const DynamicSelectField = memo(({
   label,
   placeholder,
   options,
+  description
 }: {
   control: any;
   name: string;
   label: string;
   placeholder: string;
   options: { value: string; label: string }[];
+  description?: string;
 }) => {
   return (
     <FormField
@@ -49,7 +52,21 @@ const DynamicSelectField = memo(({
       name={name}
       render={({ field }) => (
         <FormItem>
-          <FormLabel>{label}</FormLabel>
+          <div className="flex items-center gap-2">
+            <FormLabel>{label}</FormLabel>
+            {description && (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p className="max-w-xs">{description}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            )}
+          </div>
           <Select onValueChange={field.onChange} defaultValue={field.value}>
             <FormControl>
               <SelectTrigger>
@@ -84,6 +101,41 @@ Análise e Estética da Imagem: Analise a imagem de referência fornecida a segu
 Qualidade: Garanta a mais alta qualidade técnica e visual possível, conforme especificado no campo de qualidade (ex: visual_quality).
 
 Coerência: As transições entre os clipes devem ser suaves. Mantenha a coerência visual e tonal (e.g., feeling, timeOfDay) ao longo de toda a sequência, a menos que as especificações explícitas de um clipe exijam uma mudança.`;
+
+const tutorialSteps = [
+    {
+      target: ".scene-title",
+      content: "Bem-vindo ao Gerador de Cenas! Aqui você pode criar uma sequência de clipes para animações ou vídeos.",
+    },
+    {
+      target: ".add-scene-button",
+      content: "Use este botão para adicionar novas cenas à sua sequência. Você pode ter até 8 cenas.",
+    },
+    {
+      target: ".scene-accordion-item",
+      content: "Cada cena é um item expansível. Clique para abrir e editar os detalhes.",
+    },
+    {
+      target: ".scene-prompt-input",
+      content: "Este é o prompt principal da cena. Descreva o que você quer ver acontecendo aqui.",
+    },
+    {
+      target: ".scene-name-input",
+      content: "Dê um nome à sua cena para facilitar a organização. Isso não afeta o resultado final.",
+    },
+    {
+      target: ".scene-select-fields",
+      content: "Use estes campos para refinar os detalhes técnicos e estéticos de cada cena, como câmera, iluminação e estilo.",
+    },
+    {
+      target: ".generate-json-button",
+      content: "Clique aqui para gerar um JSON estruturado com todas as suas cenas. Ideal para APIs e automação.",
+    },
+    {
+      target: ".generate-full-prompt-button",
+      content: "Ou clique aqui para gerar um prompt completo, com instruções detalhadas e o JSON, pronto para ser usado com IAs avançadas.",
+    },
+  ];
 
 export function SceneGeneratorForm() {
   const { toast } = useToast();
@@ -209,9 +261,10 @@ export function SceneGeneratorForm() {
 
   return (
     <>
+      <TutorialDialog pageKey="scene-generator" steps={tutorialSteps} />
       <Card className="mx-auto w-full max-w-7xl shadow-lg">
         <CardHeader>
-          <CardTitle className="font-headline flex items-center gap-2 text-2xl">
+          <CardTitle className="font-headline flex items-center gap-2 text-2xl scene-title">
             <Sparkles className="h-6 w-6 text-primary" />
             Crie sua Sequência
           </CardTitle>
@@ -221,7 +274,7 @@ export function SceneGeneratorForm() {
             <form className="space-y-8">
               <Accordion type="multiple" defaultValue={['scene-0']} className="w-full space-y-4">
                 {fields.map((field, index) => (
-                  <AccordionItem key={field.id} value={`scene-${index}`} className="rounded-lg border bg-card px-4 shadow-sm">
+                  <AccordionItem key={field.id} value={`scene-${index}`} className="rounded-lg border bg-card px-4 shadow-sm scene-accordion-item">
                     <div className="flex items-center">
                         <AccordionTrigger className="flex-1 text-lg font-medium">
                             {watchedScenes[index]?.sceneName || `Cena ${index + 1}`}
@@ -238,7 +291,7 @@ export function SceneGeneratorForm() {
                             control={form.control}
                             name={`scenes.${index}.sceneName`}
                             render={({ field: formField }) => (
-                                <FormItem>
+                                <FormItem className="scene-name-input">
                                 <FormLabel className="text-base">Nome da Cena (Opcional)</FormLabel>
                                 <FormControl>
                                     <Input
@@ -254,7 +307,7 @@ export function SceneGeneratorForm() {
                           control={form.control}
                           name={`scenes.${index}.prompt`}
                           render={({ field: formField }) => (
-                            <FormItem>
+                            <FormItem className="scene-prompt-input">
                               <FormLabel className="text-base">Prompt da Cena</FormLabel>
                               <FormControl>
                                 <Textarea
@@ -267,7 +320,7 @@ export function SceneGeneratorForm() {
                             </FormItem>
                           )}
                         />
-                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 scene-select-fields">
                             {sceneOptions.map(option => (
                                 <DynamicSelectField
                                     key={option.key}
@@ -276,6 +329,7 @@ export function SceneGeneratorForm() {
                                     label={option.label}
                                     placeholder="OFF"
                                     options={option.options}
+                                    description={option.description}
                                 />
                             ))}
                         </div>
@@ -286,16 +340,16 @@ export function SceneGeneratorForm() {
               </Accordion>
               
               <div className="flex flex-col items-center justify-between gap-4 pt-4 md:flex-row">
-                <Button type="button" variant="outline" onClick={addScene}>
+                <Button type="button" variant="outline" onClick={addScene} className="add-scene-button">
                     <PlusCircle className="mr-2 h-5 w-5" />
                     Adicionar Cena
                 </Button>
                 <div className="flex flex-col gap-4 sm:flex-row">
-                    <Button type="button" size="lg" onClick={form.handleSubmit(onJsonSubmit)}>
+                    <Button type="button" size="lg" onClick={form.handleSubmit(onJsonSubmit)} className="generate-json-button">
                         <Sparkles className="mr-2 h-5 w-5" />
                         Gerar JSON das Cenas
                     </Button>
-                     <Button type="button" size="lg" variant="secondary" onClick={form.handleSubmit(onFullPromptSubmit)}>
+                     <Button type="button" size="lg" variant="secondary" onClick={form.handleSubmit(onFullPromptSubmit)} className="generate-full-prompt-button">
                         <FileText className="mr-2 h-5 w-5" />
                         Gerar Prompt Completo
                     </Button>
@@ -361,5 +415,3 @@ export function SceneGeneratorForm() {
     </>
   );
 }
-
-    

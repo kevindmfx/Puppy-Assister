@@ -7,6 +7,7 @@ import { Toaster } from '@/components/ui/toaster';
 import { ThemeProvider } from '@/components/theme-provider';
 import { OptionsProvider } from '@/context/options-context';
 import { AuthProvider } from '@/context/auth-context';
+import { TutorialProvider } from '@/context/tutorial-context';
 
 export const metadata: Metadata = {
   title: 'Puppy Assister',
@@ -46,12 +47,14 @@ export default function RootLayout({
         >
           <AuthProvider>
             <OptionsProvider>
-              <div className="relative flex min-h-dvh flex-col bg-background">
-                <Header />
-                <main className="flex flex-1 items-center justify-center">{children}</main>
-                <Footer />
-              </div>
-              <Toaster />
+                <TutorialProvider>
+                    <div className="relative flex min-h-dvh flex-col bg-background">
+                        <Header />
+                        <main className="flex flex-1 items-center justify-center">{children}</main>
+                        <Footer />
+                    </div>
+                    <Toaster />
+                </TutorialProvider>
             </OptionsProvider>
           </AuthProvider>
         </ThemeProvider>

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from 'next/link';
-import { Menu, Wand2, Film, LogOut } from 'lucide-react';
+import { Menu, Wand2, Film, LogOut, HelpCircle } from 'lucide-react';
 import { ModeToggle } from '../mode-toggle';
 import { SettingsPanel } from '../settings-panel';
 import { Button } from '@/components/ui/button';
@@ -13,9 +13,11 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useAuth } from '@/context/auth-context';
+import { useTutorial } from '@/context/tutorial-context';
 
 export function Header() {
   const { isAuthenticated, logout } = useAuth();
+  const { showTutorial } = useTutorial();
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -54,6 +56,10 @@ export function Header() {
         <div className="flex items-center justify-end gap-2">
           {isAuthenticated && (
             <>
+              <Button variant="ghost" size="icon" onClick={showTutorial}>
+                <HelpCircle className="h-5 w-5" />
+                <span className="sr-only">Ajuda</span>
+              </Button>
               <SettingsPanel />
               <ModeToggle />
               <Button variant="ghost" size="icon" onClick={logout}>

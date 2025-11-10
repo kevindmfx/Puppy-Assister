@@ -24,10 +24,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { SPECIAL_MIDJOURNEY_KEYS } from "@/lib/constants";
-import { Clipboard, ClipboardCheck, Sparkles } from "lucide-react";
+import { Clipboard, ClipboardCheck, Sparkles, HelpCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useOptions } from "@/context/options-context";
 import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
+import { Tooltip, TooltipProvider, TooltipContent, TooltipTrigger } from "./ui/tooltip";
+import { TutorialDialog } from "./tutorial-dialog";
 
 const DynamicSelectField = memo(({
   control,
@@ -35,12 +37,14 @@ const DynamicSelectField = memo(({
   label,
   placeholder,
   options,
+  description
 }: {
   control: any;
   name: string;
   label: string;
   placeholder: string;
   options: { value: string; label: string }[];
+  description?: string;
 }) => {
   return (
     <FormField
@@ -48,7 +52,21 @@ const DynamicSelectField = memo(({
       name={name}
       render={({ field }) => (
         <FormItem>
-          <FormLabel>{label}</FormLabel>
+           <div className="flex items-center gap-2">
+            <FormLabel>{label}</FormLabel>
+            {description && (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p className="max-w-xs">{description}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            )}
+          </div>
           <Select onValueChange={field.onChange} defaultValue={field.value}>
             <FormControl>
               <SelectTrigger>
@@ -71,6 +89,29 @@ const DynamicSelectField = memo(({
 });
 
 DynamicSelectField.displayName = 'DynamicSelectField';
+
+const tutorialSteps = [
+    {
+      target: ".prompt-title",
+      content: "Bem-vindo ao Gerador de Prompt! Esta ferramenta ajuda você a criar prompts detalhados para IAs de geração de imagem.",
+    },
+    {
+      target: ".base-prompt-input",
+      content: "Comece descrevendo a ideia principal da sua imagem aqui. Seja criativo!",
+    },
+    {
+      target: ".select-fields",
+      content: "Use estes campos para adicionar parâmetros técnicos e de estilo ao seu prompt, como proporção, qualidade e versão da IA.",
+    },
+    {
+      target: ".output-format-selector",
+      content: "Escolha o formato da saída. 'Texto para Midjourney' gera um prompt em linha, enquanto 'JSON' cria uma estrutura de dados para outras IAs.",
+    },
+    {
+      target: ".generate-prompt-button",
+      content: "Quando terminar, clique aqui para gerar seu prompt final!",
+    },
+];
 
 export function VisionWeaverForm() {
   const { toast } = useToast();
@@ -169,9 +210,10 @@ export function VisionWeaverForm() {
 
   return (
     <>
+      <TutorialDialog pageKey="prompt-generator" steps={tutorialSteps} />
       <Card className="mx-auto w-full max-w-7xl shadow-lg">
         <CardHeader>
-          <CardTitle className="font-headline flex items-center gap-2 text-2xl">
+          <CardTitle className="font-headline flex items-center gap-2 text-2xl prompt-title">
             <Sparkles className="h-6 w-6 text-primary" />
             Crie seu Prompt
           </CardTitle>
@@ -183,7 +225,7 @@ export function VisionWeaverForm() {
                 control={form.control}
                 name="basePrompt"
                 render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="base-prompt-input">
                     <FormLabel className="text-lg">Prompt Base</FormLabel>
                     <FormControl>
                         <Textarea
@@ -200,7 +242,7 @@ export function VisionWeaverForm() {
                 )}
                 />
 
-              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 select-fields">
                 {promptOptions.map(option => (
                     <DynamicSelectField 
                         key={option.key}
@@ -209,6 +251,7 @@ export function VisionWeaverForm() {
                         label={option.label}
                         placeholder="OFF"
                         options={option.options}
+                        description={option.description}
                     />
                 ))}
               </div>
@@ -218,7 +261,7 @@ export function VisionWeaverForm() {
                   control={form.control}
                   name="outputType"
                   render={({ field }) => (
-                    <FormItem className="space-y-3">
+                    <FormItem className="space-y-3 output-format-selector">
                       <FormLabel>Formato de Saída</FormLabel>
                       <FormControl>
                         <RadioGroup
@@ -249,7 +292,7 @@ export function VisionWeaverForm() {
                   )}
                 />
                 <div className="flex justify-center md:col-span-2 md:justify-end">
-                    <Button type="submit" size="lg" className="w-full md:w-auto">
+                    <Button type="submit" size="lg" className="w-full md:w-auto generate-prompt-button">
                     <Sparkles className="mr-2 h-5 w-5" />
                     Gerar Prompt
                     </Button>
