@@ -45,7 +45,7 @@ export default function HomePage() {
     <div className="container py-12">
       <div className="mb-12 flex flex-col items-center text-center">
         <h1 className="font-headline text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl">
-          Gerador de Prompt
+          PUPPY ASSISTER
         </h1>
         <p className="mt-4 max-w-[700px] text-muted-foreground md:text-xl">
           Sua caixa de ferramentas para acelerar e aprimorar seus projetos de IA. Escolha uma das ferramentas abaixo para começar.
