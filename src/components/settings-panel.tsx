@@ -45,7 +45,7 @@ export function SettingsPanel() {
   const isSceneGenerator = pathname === '/scene-generator';
   const currentOptions = isSceneGenerator ? sceneOptions : promptOptions;
   const setCurrentOptions = isSceneGenerator ? setSceneOptions : setPromptOptions;
-  const panelTitle = isSceneGenerator ? "Gerador de Cenas" : "Gerador de Prompts para Imagens";
+  const panelTitle = isSceneGenerator ? "Gerador de Cenas" : "Otimizador de prompts";
 
   useEffect(() => {
     setMounted(true);

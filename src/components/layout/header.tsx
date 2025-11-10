@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { useAuth } from '@/context/auth-context';
 import { useTutorial } from '@/context/tutorial-context';
 import { cn } from '@/lib/utils';
-import { Sheet, SheetContent, SheetTrigger, SheetClose } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetTrigger, SheetClose, SheetTitle } from '@/components/ui/sheet';
 import { Separator } from '../ui/separator';
 
 export function Header() {
@@ -43,6 +43,7 @@ export function Header() {
                     </Button>
                   </SheetTrigger>
                   <SheetContent side="left" className="w-[300px] sm:w-[300px]">
+                    <SheetTitle className="sr-only">Menu de Navegação</SheetTitle>
                     <nav className="flex h-full flex-col gap-6 text-lg font-medium mt-6 px-2">
                       <Link
                         href="/"
