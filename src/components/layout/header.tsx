@@ -26,7 +26,7 @@ export function Header() {
           {isAuthenticated ? (
             <>
               <div className="flex items-center">
-                <DropdownMenu>
+                <DropdownMenu modal={false}>
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" size="icon" className="mr-2">
                       <Menu className="h-6 w-6" />
