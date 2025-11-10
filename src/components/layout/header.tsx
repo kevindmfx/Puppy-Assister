@@ -27,10 +27,10 @@ export function Header() {
         <div className="flex flex-1 items-center justify-between">
           {isAuthenticated ? (
             <>
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
                 <Sheet>
                   <SheetTrigger asChild>
-                    <Button variant="ghost" size="icon" className="md:hidden">
+                    <Button variant="ghost" size="icon">
                       <Menu className="h-5 w-5" />
                       <span className="sr-only">Abrir Menu</span>
                     </Button>
@@ -63,25 +63,10 @@ export function Header() {
                   </SheetContent>
                 </Sheet>
                 <Link href="/" className="flex items-center space-x-2">
-                  <span className="font-headline text-lg font-bold">
+                  <span className="hidden font-headline text-lg font-bold sm:inline-block">
                     Puppy Assister
                   </span>
                 </Link>
-                <nav className="hidden items-center gap-4 md:flex">
-                    {navLinks.map((link) => (
-                        <Link
-                        key={link.href}
-                        href={link.href}
-                        className={cn(
-                            "flex items-center gap-2 text-sm font-medium transition-colors hover:text-primary",
-                            pathname === link.href ? "text-primary" : "text-muted-foreground"
-                        )}
-                        >
-                        <link.icon className="h-4 w-4" />
-                        {link.label}
-                        </Link>
-                    ))}
-                </nav>
               </div>
 
               <div className="flex items-center justify-end gap-2">
