@@ -2,13 +2,14 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Wand2, Film, LogOut, HelpCircle } from 'lucide-react';
+import { Wand2, Film, LogOut, HelpCircle, Menu } from 'lucide-react';
 import { ModeToggle } from '../mode-toggle';
 import { SettingsPanel } from '../settings-panel';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/context/auth-context';
 import { useTutorial } from '@/context/tutorial-context';
 import { cn } from '@/lib/utils';
+import { Sheet, SheetContent, SheetTrigger, SheetClose } from '@/components/ui/sheet';
 
 export function Header() {
   const { isAuthenticated, logout } = useAuth();
@@ -26,7 +27,41 @@ export function Header() {
         <div className="flex flex-1 items-center justify-between">
           {isAuthenticated ? (
             <>
-              <div className="flex items-center gap-6">
+              <div className="flex items-center gap-4">
+                <Sheet>
+                  <SheetTrigger asChild>
+                    <Button variant="ghost" size="icon" className="md:hidden">
+                      <Menu className="h-5 w-5" />
+                      <span className="sr-only">Abrir Menu</span>
+                    </Button>
+                  </SheetTrigger>
+                  <SheetContent side="left">
+                    <nav className="grid gap-6 text-lg font-medium mt-6">
+                      <Link
+                        href="#"
+                        className="flex items-center gap-2 text-lg font-semibold"
+                      >
+                        <span className="font-headline text-lg font-bold">
+                          Puppy Assister
+                        </span>
+                      </Link>
+                      {navLinks.map((link) => (
+                         <SheetClose asChild key={link.href}>
+                            <Link
+                                href={link.href}
+                                className={cn(
+                                    "flex items-center gap-4 px-2.5 transition-colors hover:text-foreground",
+                                    pathname === link.href ? "text-foreground" : "text-muted-foreground"
+                                )}
+                            >
+                                <link.icon className="h-5 w-5" />
+                                {link.label}
+                            </Link>
+                        </SheetClose>
+                      ))}
+                    </nav>
+                  </SheetContent>
+                </Sheet>
                 <Link href="/" className="flex items-center space-x-2">
                   <span className="font-headline text-lg font-bold">
                     Puppy Assister
@@ -50,23 +85,6 @@ export function Header() {
               </div>
 
               <div className="flex items-center justify-end gap-2">
-                 <div className="flex items-center gap-4 md:hidden">
-                    {navLinks.map((link) => (
-                        <Link
-                        key={link.href}
-                        href={link.href}
-                        className={cn(
-                            "flex items-center gap-2 text-sm font-medium transition-colors hover:text-primary",
-                            pathname === link.href ? "text-primary" : "text-muted-foreground"
-                        )}
-                        >
-                         <Button variant="ghost" size="icon">
-                            <link.icon className="h-5 w-5" />
-                             <span className="sr-only">{link.label}</span>
-                        </Button>
-                        </Link>
-                    ))}
-                </div>
                 <Button variant="ghost" size="icon" onClick={showTutorial}>
                   <HelpCircle className="h-5 w-5" />
                   <span className="sr-only">Ajuda</span>
