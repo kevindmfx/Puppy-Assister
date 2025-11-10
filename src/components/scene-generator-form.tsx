@@ -106,12 +106,8 @@ Coerência: As transições entre os clipes devem ser suaves. Mantenha a coerên
 
 const tutorialSteps = [
     {
-      target: ".scene-title",
-      content: "Bem-vindo ao Gerador de Cenas! Aqui você pode criar uma sequência de clipes para animações ou vídeos.",
-    },
-    {
       target: ".add-scene-button",
-      content: "Use este botão para adicionar novas cenas à sua sequência. Você pode ter até 8 cenas.",
+      content: "Bem-vindo ao Gerador de Cenas! Use este botão para adicionar novas cenas à sua sequência. Você pode ter até 8 cenas.",
     },
     {
       target: ".scene-accordion-item",
@@ -322,7 +318,7 @@ export function SceneGeneratorForm() {
                             </FormItem>
                           )}
                         />
-                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 scene-select-fields">
+                        <div className="grid grid-cols-1 gap-4 rounded-md p-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 scene-select-fields">
                             {sceneOptions.map(option => (
                                 <DynamicSelectField
                                     key={option.key}

@@ -87,6 +87,6 @@
     position: relative !important;
     background-color: hsl(var(--background));
     border-radius: var(--radius);
-    box-shadow: 0 0 0 16px hsl(var(--background));
+    padding: 12px;
   }
 }
