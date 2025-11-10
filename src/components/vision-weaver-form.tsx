@@ -280,7 +280,23 @@ export function VisionWeaverForm() {
                   name="outputType"
                   render={({ field }) => (
                     <FormItem className="space-y-3 output-format-selector">
-                      <FormLabel>Formato de Saída</FormLabel>
+                      <div className="flex items-center gap-2">
+                        <FormLabel>Formato de Saída</FormLabel>
+                        <TooltipProvider>
+                            <Tooltip>
+                            <TooltipTrigger asChild>
+                                <button type="button" className="focus:outline-none">
+                                <HelpCircle className="h-4 w-4 cursor-help text-muted-foreground" />
+                                </button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                                <p className="max-w-xs">
+                                  Escolha 'Midjourney' para um prompt de texto simples ou 'JSON' para um formato estruturado compatível com APIs.
+                                </p>
+                            </TooltipContent>
+                            </Tooltip>
+                        </TooltipProvider>
+                      </div>
                       <FormControl>
                         <RadioGroup
                           onValueChange={field.onChange}
