@@ -44,34 +44,10 @@ export default function HistoryPage() {
   return (
     <div className="container py-12 w-full max-w-5xl">
         <div className="mb-12 flex flex-col items-center text-center">
-            <div className="flex w-full justify-center items-center gap-4 relative">
-                <h1 className="font-headline text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl flex items-center gap-3">
-                    <HistoryIcon className="h-10 w-10" />
-                    Histórico de Gerações
-                </h1>
-                 {history.length > 0 && (
-                    <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                             <Button variant="destructive" size="icon" className="absolute -top-2 -right-4 sm:right-0">
-                                <Trash2 className="h-5 w-5" />
-                                <span className="sr-only">Limpar Histórico</span>
-                            </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                            <AlertDialogHeader>
-                            <AlertDialogTitle>Você tem certeza?</AlertDialogTitle>
-                            <AlertDialogDescription>
-                                Esta ação não pode ser desfeita. Isso excluirá permanentemente todo o seu histórico de gerações.
-                            </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                            <AlertDialogAction onClick={clearHistory}>Continuar</AlertDialogAction>
-                            </AlertDialogFooter>
-                        </AlertDialogContent>
-                    </AlertDialog>
-                )}
-            </div>
+            <h1 className="font-headline text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl flex items-center gap-3">
+                <HistoryIcon className="h-10 w-10" />
+                Histórico de Gerações
+            </h1>
             <p className="mt-4 max-w-[700px] text-muted-foreground md:text-xl flex items-center gap-2">
                 Aqui estão suas últimas gerações.
                 <TooltipProvider>
@@ -93,7 +69,29 @@ export default function HistoryPage() {
                 <p>Comece a gerar prompts ou cenas para vê-los aqui.</p>
             </div>
         ) : (
-            <div className="rounded-md border">
+            <div className="rounded-md border relative">
+                {history.length > 0 && (
+                    <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                                <Button variant="destructive" size="icon" className="absolute top-2 right-2 z-10">
+                                <Trash2 className="h-4 w-4" />
+                                <span className="sr-only">Limpar Histórico</span>
+                            </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                            <AlertDialogHeader>
+                            <AlertDialogTitle>Você tem certeza?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                                Esta ação não pode ser desfeita. Isso excluirá permanentemente todo o seu histórico de gerações.
+                            </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                            <AlertDialogAction onClick={clearHistory}>Continuar</AlertDialogAction>
+                            </AlertDialogFooter>
+                        </AlertDialogContent>
+                    </AlertDialog>
+                )}
                 <Table>
                     <TableHeader>
                         <TableRow>
