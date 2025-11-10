@@ -325,11 +325,25 @@ export function VisionWeaverForm() {
                     </FormItem>
                   )}
                 />
-                <div className="flex justify-center md:col-span-2 md:justify-end">
+                <div className="flex justify-center items-center gap-2 md:col-span-2 md:justify-end">
                     <Button type="submit" size="lg" className="w-full md:w-auto generate-prompt-button">
-                    <Sparkles className="mr-2 h-5 w-5" />
-                    Gerar Prompt
+                        <Sparkles className="mr-2 h-5 w-5" />
+                        Gerar Prompt
                     </Button>
+                    <TooltipProvider>
+                        <Tooltip>
+                        <TooltipTrigger asChild>
+                            <button type="button" className="focus:outline-none">
+                            <HelpCircle className="h-4 w-4 cursor-help text-muted-foreground" />
+                            </button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                            <p className="max-w-xs">
+                                Clique para gerar o prompt final com base nas suas seleções.
+                            </p>
+                        </TooltipContent>
+                        </Tooltip>
+                    </TooltipProvider>
                 </div>
               </div>
 
@@ -366,3 +380,5 @@ export function VisionWeaverForm() {
     </>
   );
 }
+
+    

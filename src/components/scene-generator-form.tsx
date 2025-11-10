@@ -350,7 +350,7 @@ export function SceneGeneratorForm() {
                             </FormItem>
                           )}
                         />
-                        <div className="grid grid-cols-1 gap-4 rounded-md p-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 scene-select-fields">
+                        <div className="grid grid-cols-1 gap-4 rounded-md border bg-muted p-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 scene-select-fields">
                             {sceneOptions.map(option => (
                                 <DynamicSelectField
                                     key={option.key}
@@ -370,19 +370,62 @@ export function SceneGeneratorForm() {
               </Accordion>
               
               <div className="flex flex-col items-center justify-between gap-4 pt-4 md:flex-row">
-                <Button type="button" variant="outline" onClick={addScene} className="add-scene-button">
-                    <PlusCircle className="mr-2 h-5 w-5" />
-                    Adicionar Cena
-                </Button>
-                <div className="flex flex-col gap-4 sm:flex-row">
-                    <Button type="button" size="lg" onClick={form.handleSubmit(onJsonSubmit)} className="generate-json-button">
-                        <Sparkles className="mr-2 h-5 w-5" />
-                        Gerar JSON das Cenas
-                    </Button>
-                     <Button type="button" size="lg" variant="secondary" onClick={form.handleSubmit(onFullPromptSubmit)} className="generate-full-prompt-button">
-                        <FileText className="mr-2 h-5 w-5" />
-                        Gerar Prompt Completo
-                    </Button>
+                <div className="flex items-center gap-2">
+                  <Button type="button" variant="outline" onClick={addScene} className="add-scene-button">
+                      <PlusCircle className="mr-2 h-5 w-5" />
+                      Adicionar Cena
+                  </Button>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button type="button" className="focus:outline-none">
+                          <HelpCircle className="h-4 w-4 cursor-help text-muted-foreground" />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p className="max-w-xs">Adiciona uma nova cena à sua sequência (máximo de 8).</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
+
+                <div className="flex flex-col items-center gap-4 sm:flex-row">
+                    <div className="flex items-center gap-2">
+                        <Button type="button" size="lg" onClick={form.handleSubmit(onJsonSubmit)} className="generate-json-button">
+                            <Sparkles className="mr-2 h-5 w-5" />
+                            Gerar JSON das Cenas
+                        </Button>
+                         <TooltipProvider>
+                            <Tooltip>
+                            <TooltipTrigger asChild>
+                                <button type="button" className="focus:outline-none">
+                                <HelpCircle className="h-4 w-4 cursor-help text-muted-foreground" />
+                                </button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                                <p className="max-w-xs">Gera um arquivo JSON estruturado com todas as cenas, ideal para ser usado com APIs.</p>
+                            </TooltipContent>
+                            </Tooltip>
+                        </TooltipProvider>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <Button type="button" size="lg" variant="secondary" onClick={form.handleSubmit(onFullPromptSubmit)} className="generate-full-prompt-button">
+                            <FileText className="mr-2 h-5 w-5" />
+                            Gerar Prompt Completo
+                        </Button>
+                        <TooltipProvider>
+                            <Tooltip>
+                            <TooltipTrigger asChild>
+                                <button type="button" className="focus:outline-none">
+                                <HelpCircle className="h-4 w-4 cursor-help text-muted-foreground" />
+                                </button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                                <p className="max-w-xs">Gera um prompt de texto único e detalhado contendo todas as cenas e instruções, pronto para IAs avançadas.</p>
+                            </TooltipContent>
+                            </Tooltip>
+                        </TooltipProvider>
+                    </div>
                 </div>
               </div>
 
@@ -445,3 +488,5 @@ export function SceneGeneratorForm() {
     </>
   );
 }
+
+    
