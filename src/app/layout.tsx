@@ -9,7 +9,7 @@ import { AuthProvider } from '@/context/auth-context';
 import { TutorialProvider } from '@/context/tutorial-context';
 
 export const metadata: Metadata = {
-  title: 'Puppy Assister',
+  title: 'Gerador de Prompt',
   description: 'Gere prompts JSON para criação de imagens com IA.',
 };
 
