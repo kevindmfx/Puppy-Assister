@@ -84,11 +84,8 @@
   }
   .tutorial-highlight {
     background-color: hsl(var(--background));
-    border-radius: calc(var(--radius) + 4px);
+    border-radius: var(--radius);
     z-index: 101 !important;
     position: relative !important;
-    transition: box-shadow 0.3s ease-in-out;
-    box-shadow: 0 0 0 8px hsl(var(--primary) / 0.5);
-    margin: 4px; /* Adiciona uma pequena margem para garantir que não corte */
   }
 }
