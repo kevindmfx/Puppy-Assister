@@ -30,6 +30,7 @@ import { useOptions } from "@/context/options-context";
 import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
 import { Tooltip, TooltipProvider, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 import { TutorialDialog } from "./tutorial-dialog";
+import { useHistory } from "@/context/history-context";
 
 const DynamicSelectField = memo(({
   control,
@@ -118,6 +119,7 @@ const tutorialSteps = [
 export function VisionWeaverForm() {
   const { toast } = useToast();
   const { promptOptions } = useOptions();
+  const { addHistoryItem } = useHistory();
   const [output, setOutput] = useState("");
   const [hasCopied, setHasCopied] = useState(false);
 
@@ -194,6 +196,10 @@ export function VisionWeaverForm() {
         generatedOutput = generateMidjourneyPrompt(values);
     } else {
         generatedOutput = generateJsonOutput(values);
+        addHistoryItem({
+          type: 'prompt',
+          content: generatedOutput,
+        });
     }
     setOutput(generatedOutput);
     setHasCopied(false);
@@ -380,5 +386,3 @@ export function VisionWeaverForm() {
     </>
   );
 }
-
-    

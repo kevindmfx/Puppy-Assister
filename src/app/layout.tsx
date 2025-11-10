@@ -7,6 +7,7 @@ import { ThemeProvider } from '@/components/theme-provider';
 import { OptionsProvider } from '@/context/options-context';
 import { AuthProvider } from '@/context/auth-context';
 import { TutorialProvider } from '@/context/tutorial-context';
+import { HistoryProvider } from '@/context/history-context';
 
 export const metadata: Metadata = {
   title: 'Gerador de Prompt',
@@ -46,6 +47,7 @@ export default function RootLayout({
         >
           <AuthProvider>
             <OptionsProvider>
+              <HistoryProvider>
                 <TutorialProvider>
                     <div className="relative flex min-h-dvh flex-col bg-background">
                         <Header />
@@ -53,6 +55,7 @@ export default function RootLayout({
                     </div>
                     <Toaster />
                 </TutorialProvider>
+              </HistoryProvider>
             </OptionsProvider>
           </AuthProvider>
         </ThemeProvider>

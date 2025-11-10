@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Wand2, Film, LogOut, HelpCircle, Menu, BrainCircuit } from 'lucide-react';
+import { Wand2, Film, LogOut, HelpCircle, Menu, BrainCircuit, History } from 'lucide-react';
 import { ModeToggle } from '../mode-toggle';
 import { SettingsPanel } from '../settings-panel';
 import { Button } from '@/components/ui/button';
@@ -11,10 +11,13 @@ import { useTutorial } from '@/context/tutorial-context';
 import { cn } from '@/lib/utils';
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from '@/components/ui/sheet';
 import { Separator } from '../ui/separator';
+import { useHistory } from '@/context/history-context';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
 
 export function Header() {
   const { isAuthenticated, logout } = useAuth();
   const { showTutorial } = useTutorial();
+  const { promptHistory, sceneHistory } = useHistory();
   const pathname = usePathname();
 
   const isGeneratorPage = pathname === '/prompt-generator' || pathname === '/scene-generator';
@@ -27,6 +30,15 @@ export function Header() {
   const aiLinks: any[] = [
     // Futuros links de IA serão adicionados aqui
   ];
+
+  const formatHistoryDate = (date: string) => {
+    return new Date(date).toLocaleString('pt-BR', {
+      day: '2-digit',
+      month: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  };
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -53,7 +65,7 @@ export function Header() {
                         </span>
                       </Link>
                       
-                      <div className="flex-1 space-y-4">
+                      <div className="flex-1 space-y-4 overflow-y-auto">
                         <div>
                             <h3 className="mb-2 px-2 text-sm font-semibold text-muted-foreground tracking-wider uppercase">
                                 Ferramentas
@@ -104,8 +116,67 @@ export function Header() {
                                 )}
                             </div>
                         </div>
-                      </div>
 
+                        <Separator />
+
+                        <div>
+                            <div className="flex items-center gap-2 mb-2 px-2">
+                                <h3 className="text-sm font-semibold text-muted-foreground tracking-wider uppercase">
+                                    Histórico
+                                </h3>
+                                <TooltipProvider>
+                                    <Tooltip>
+                                        <TooltipTrigger>
+                                            <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
+                                        </TooltipTrigger>
+                                        <TooltipContent>
+                                            <p className="max-w-xs text-sm">Este histórico é salvo apenas no seu navegador.</p>
+                                        </TooltipContent>
+                                    </Tooltip>
+                                </TooltipProvider>
+                            </div>
+                             <div className="grid gap-1">
+                                {promptHistory.length === 0 && sceneHistory.length === 0 ? (
+                                    <div className="flex items-center gap-3 rounded-lg px-2 py-2 text-muted-foreground">
+                                        <History className="h-5 w-5" />
+                                        <span>Nenhuma geração.</span>
+                                    </div>
+                                ) : (
+                                    <>
+                                        {promptHistory.map((item) => (
+                                            <SheetClose asChild key={item.id}>
+                                                <Link
+                                                    href={`/history/${item.id}`}
+                                                    className="flex items-center gap-3 rounded-lg px-2 py-2 text-muted-foreground transition-all hover:bg-accent hover:text-foreground"
+                                                >
+                                                    <Wand2 className="h-5 w-5" />
+                                                    <div className="flex flex-col text-sm">
+                                                        <span>Prompt</span>
+                                                        <span className="text-xs">{formatHistoryDate(item.timestamp)}</span>
+                                                    </div>
+                                                </Link>
+                                            </SheetClose>
+                                        ))}
+                                        {sceneHistory.map((item) => (
+                                            <SheetClose asChild key={item.id}>
+                                                <Link
+                                                    href={`/history/${item.id}`}
+                                                    className="flex items-center gap-3 rounded-lg px-2 py-2 text-muted-foreground transition-all hover:bg-accent hover:text-foreground"
+                                                >
+                                                    <Film className="h-5 w-5" />
+                                                    <div className="flex flex-col text-sm">
+                                                        <span>Cena</span>
+                                                        <span className="text-xs">{formatHistoryDate(item.timestamp)}</span>
+                                                    </div>
+                                                </Link>
+                                            </SheetClose>
+                                        ))}
+                                    </>
+                                )}
+                            </div>
+                        </div>
+
+                      </div>
                     </nav>
                   </SheetContent>
                 </Sheet>

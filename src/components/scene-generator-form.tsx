@@ -30,6 +30,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useOptions } from "@/context/options-context";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip";
 import { TutorialDialog } from "./tutorial-dialog";
+import { useHistory } from "@/context/history-context";
 
 const DynamicSelectField = memo(({
   control,
@@ -138,6 +139,7 @@ const tutorialSteps = [
 export function SceneGeneratorForm() {
   const { toast } = useToast();
   const { sceneOptions } = useOptions();
+  const { addHistoryItem } = useHistory();
   const [jsonOutput, setJsonOutput] = useState("");
   const [fullPromptOutput, setFullPromptOutput] = useState("");
   const [hasCopiedJson, setHasCopiedJson] = useState(false);
@@ -213,11 +215,19 @@ export function SceneGeneratorForm() {
     return JSON.stringify(scenesData, null, 2);
   };
 
+  const saveToHistory = (output: string) => {
+    addHistoryItem({
+      type: 'scene',
+      content: output,
+    });
+  }
+
   function onJsonSubmit(values: FormValues) {
     const generatedOutput = generateJsonOutput(values);
     setJsonOutput(generatedOutput);
     setFullPromptOutput("");
     setHasCopiedJson(false);
+    saveToHistory(generatedOutput);
   }
 
   function onFullPromptSubmit(values: FormValues) {
@@ -226,6 +236,7 @@ export function SceneGeneratorForm() {
     setFullPromptOutput(fullPrompt);
     setJsonOutput("");
     setHasCopiedFullPrompt(false);
+    saveToHistory(jsonString);
   }
 
   const handleCopy = (type: 'json' | 'full') => {
@@ -488,5 +499,3 @@ export function SceneGeneratorForm() {
     </>
   );
 }
-
-    
