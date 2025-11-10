@@ -83,11 +83,7 @@
     @apply bg-background text-foreground;
   }
   .tutorial-highlight {
-    background-color: hsl(var(--background));
-    border-radius: var(--radius);
     z-index: 101 !important;
     position: relative !important;
-    padding: 1rem; /* Adiciona um respiro */
-    margin: -1rem; /* Compensa o padding para não deslocar o elemento */
   }
 }

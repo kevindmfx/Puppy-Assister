@@ -20,51 +20,75 @@ export function TutorialDialog({ pageKey, steps }: TutorialDialogProps) {
   const { isTutorialOpen, closeTutorial, completeTutorial } = useTutorial();
   const [currentStep, setCurrentStep] = useState(0);
   const highlightedElementRef = useRef<HTMLElement | null>(null);
+  const [highlightStyle, setHighlightStyle] = useState<React.CSSProperties>({});
 
   useEffect(() => {
-    const cleanup = () => {
-      document.body.style.overflow = '';
+    const cleanupHighlight = () => {
       if (highlightedElementRef.current) {
         highlightedElementRef.current.classList.remove('tutorial-highlight');
-        highlightedElementRef.current.style.zIndex = '';
-        highlightedElementRef.current.style.position = '';
         highlightedElementRef.current = null;
       }
+      setHighlightStyle({});
     };
-  
+
     if (isTutorialOpen) {
       document.body.style.overflow = 'hidden';
-      // Clean up previous highlight before applying a new one
-      cleanup();
-  
+      cleanupHighlight();
+
       const step = steps[currentStep];
       if (!step) return;
 
       const targetElement = document.querySelector(step.target) as HTMLElement;
-  
+
       if (targetElement) {
-        targetElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  
-        const handleScrollEnd = () => {
+        const handleHighlight = () => {
+          const rect = targetElement.getBoundingClientRect();
+          const padding = 16; // 1rem
+
+          setHighlightStyle({
+            position: 'absolute',
+            left: `${rect.left - padding}px`,
+            top: `${rect.top - padding}px`,
+            width: `${rect.width + padding * 2}px`,
+            height: `${rect.height + padding * 2}px`,
+            boxShadow: '0 0 0 9999px rgba(0, 0, 0, 0.6)',
+            borderRadius: 'var(--radius)',
+            zIndex: 100,
+            pointerEvents: 'none',
+          });
+          
           targetElement.classList.add('tutorial-highlight');
           highlightedElementRef.current = targetElement;
         };
-  
+
+        targetElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+        // Use a combination of timeout and event listener for robustness
         let scrollTimeout: NodeJS.Timeout;
         const scrollEndListener = () => {
           clearTimeout(scrollTimeout);
-          scrollTimeout = setTimeout(handleScrollEnd, 150);
+          scrollTimeout = setTimeout(handleHighlight, 150); // Delay to allow layout to settle
         };
-  
-        window.addEventListener('scroll', scrollEndListener, { once: true });
+        
+        // Use 'scrollend' if available, fallback to 'scroll' with timeout
+        try {
+          window.addEventListener('scrollend', scrollEndListener, { once: true });
+        } catch (e) {
+          window.addEventListener('scroll', scrollEndListener, { once: true });
+        }
+        
         // Fallback for when the element is already in view and scroll event might not fire
-        setTimeout(handleScrollEnd, 300); 
+        setTimeout(handleHighlight, 300);
       }
     } else {
-      cleanup();
+      document.body.style.overflow = '';
+      cleanupHighlight();
     }
-  
-    return cleanup;
+
+    return () => {
+      document.body.style.overflow = '';
+      cleanupHighlight();
+    };
   }, [isTutorialOpen, currentStep, steps]);
 
 
@@ -92,11 +116,9 @@ export function TutorialDialog({ pageKey, steps }: TutorialDialogProps) {
     return null;
   }
 
-  const step = steps[currentStep];
-
   return (
     <>
-      <div className="fixed inset-0 z-[100] bg-black/60" onClick={handleClose} />
+      <div style={highlightStyle} />
       
       <Card className="fixed top-4 right-4 z-[102] w-full max-w-sm">
         <CardHeader>
@@ -106,7 +128,7 @@ export function TutorialDialog({ pageKey, steps }: TutorialDialogProps) {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <p>{step?.content || "Carregando..."}</p>
+          <p>{steps[currentStep]?.content || "Carregando..."}</p>
         </CardContent>
         <CardFooter className="flex w-full justify-between">
           <Button variant="ghost" size="sm" onClick={handleClose}>
