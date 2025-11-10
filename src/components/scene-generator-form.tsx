@@ -350,7 +350,7 @@ export function SceneGeneratorForm() {
                             </FormItem>
                           )}
                         />
-                        <div className="grid grid-cols-1 gap-4 rounded-md border bg-muted p-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 scene-select-fields">
+                        <div className="grid grid-cols-1 gap-4 rounded-md border p-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 scene-select-fields">
                             {sceneOptions.map(option => (
                                 <DynamicSelectField
                                     key={option.key}
