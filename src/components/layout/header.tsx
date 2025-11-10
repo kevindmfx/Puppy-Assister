@@ -11,6 +11,7 @@ import { useTutorial } from '@/context/tutorial-context';
 import { cn } from '@/lib/utils';
 import { Sheet, SheetContent, SheetTrigger, SheetClose, SheetTitle } from '@/components/ui/sheet';
 import { Separator } from '../ui/separator';
+import { GlobalSettingsMenu } from '../global-settings-menu';
 
 export function Header() {
   const { isAuthenticated, logout } = useAuth();
@@ -149,6 +150,7 @@ export function Header() {
                   </>
                 )}
                 <ModeToggle />
+                <GlobalSettingsMenu />
                 <Button variant="ghost" size="icon" onClick={logout}>
                   <LogOut className="h-5 w-5" />
                   <span className="sr-only">Sair</span>
