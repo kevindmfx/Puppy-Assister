@@ -6,6 +6,7 @@ import { Footer } from '@/components/layout/footer';
 import { Toaster } from '@/components/ui/toaster';
 import { ThemeProvider } from '@/components/theme-provider';
 import { OptionsProvider } from '@/context/options-context';
+import { AuthProvider } from '@/context/auth-context';
 
 export const metadata: Metadata = {
   title: 'Puppy Assister',
@@ -43,14 +44,16 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <OptionsProvider>
-            <div className="relative flex min-h-dvh flex-col bg-background">
-              <Header />
-              <main className="flex flex-1 items-center justify-center">{children}</main>
-              <Footer />
-            </div>
-            <Toaster />
-          </OptionsProvider>
+          <AuthProvider>
+            <OptionsProvider>
+              <div className="relative flex min-h-dvh flex-col bg-background">
+                <Header />
+                <main className="flex flex-1 items-center justify-center">{children}</main>
+                <Footer />
+              </div>
+              <Toaster />
+            </OptionsProvider>
+          </AuthProvider>
         </ThemeProvider>
       </body>
     </html>
