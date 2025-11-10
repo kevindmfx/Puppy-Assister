@@ -31,6 +31,18 @@ export function TutorialDialog({ pageKey, steps }: TutorialDialogProps) {
   };
   
   useEffect(() => {
+    if (isTutorialOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isTutorialOpen]);
+  
+  useEffect(() => {
     if (isTutorialOpen && steps.length > 0) {
       cleanupHighlight();
       
@@ -44,14 +56,13 @@ export function TutorialDialog({ pageKey, steps }: TutorialDialogProps) {
 
         const targetRect = targetElement.getBoundingClientRect();
         const dialogWidth = 350; 
-        const dialogHeight = 200; 
+        const dialogHeight = 220; 
         const offset = 15;
 
         let top = targetRect.bottom + offset;
         let left = targetRect.left + (targetRect.width / 2) - (dialogWidth / 2);
         let arrow = 'top';
 
-        // Adjust if it goes off-screen
         if (top + dialogHeight > window.innerHeight) {
           top = targetRect.top - dialogHeight - offset;
           arrow = 'bottom';
@@ -62,7 +73,6 @@ export function TutorialDialog({ pageKey, steps }: TutorialDialogProps) {
         if (left + dialogWidth > window.innerWidth) {
             left = window.innerWidth - dialogWidth - offset;
         }
-
 
         setPosition({ top: top + window.scrollY, left: left + window.scrollX, width: dialogWidth, height: dialogHeight, arrow });
       }
@@ -101,12 +111,12 @@ export function TutorialDialog({ pageKey, steps }: TutorialDialogProps) {
   const step = steps[currentStep];
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/30 backdrop-blur-sm" onClick={handleClose}>
+    <div className="fixed inset-0 z-50" onClick={handleClose}>
         <Card 
             className={cn(
                 "fixed z-[101] w-[350px] shadow-2xl transition-all duration-300 animate-in fade-in zoom-in-95",
             )}
-            style={{ top: `${position.top}px`, left: `${position.left}px` }}
+            style={{ top: `${position.top}px`, left: `${position.left}px`, height: `${position.height}px` }}
             onClick={(e) => e.stopPropagation()}
         >
             <div className={cn(
