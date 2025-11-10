@@ -19,6 +19,33 @@ interface TutorialDialogProps {
 export function TutorialDialog({ pageKey, steps }: TutorialDialogProps) {
   const { isTutorialOpen, closeTutorial, completeTutorial } = useTutorial();
   const [currentStep, setCurrentStep] = useState(0);
+  const previousTargetRef = useRef<Element | null>(null);
+
+  const cleanupHighlight = () => {
+    if (previousTargetRef.current) {
+      previousTargetRef.current.classList.remove("tutorial-highlight");
+    }
+  };
+
+  useEffect(() => {
+    if (isTutorialOpen && steps.length > 0) {
+      cleanupHighlight();
+      
+      const step = steps[currentStep];
+      const targetElement = document.querySelector(step.target);
+      
+      if (targetElement) {
+        targetElement.classList.add("tutorial-highlight");
+        targetElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        previousTargetRef.current = targetElement;
+      }
+    } else {
+      cleanupHighlight();
+    }
+    
+    return cleanupHighlight;
+  }, [isTutorialOpen, currentStep, steps]);
+
 
   const handleNext = () => {
     if (currentStep < steps.length - 1) {
@@ -45,10 +72,6 @@ export function TutorialDialog({ pageKey, steps }: TutorialDialogProps) {
   }
 
   const step = steps[currentStep];
-  
-  // A more advanced implementation would use a library like Shepherd.js or Intro.js
-  // to position a popover next to the target element.
-  // For simplicity, we'll stick to a central dialog that describes the step.
 
   return (
     <Dialog open={isTutorialOpen} onOpenChange={handleClose}>
