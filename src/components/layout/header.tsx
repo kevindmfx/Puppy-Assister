@@ -29,7 +29,6 @@ export function Header() {
   const pathname = usePathname();
 
   const isGeneratorPage = pathname === '/prompt-generator' || pathname === '/scene-generator';
-  const isHomePage = pathname === '/';
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -142,7 +141,7 @@ export function Header() {
               </div>
 
               <div className="flex items-center justify-end gap-2">
-                {isGeneratorPage && (
+                {isGeneratorPage ? (
                   <>
                     <Button variant="ghost" size="icon" onClick={showTutorial}>
                       <HelpCircle className="h-5 w-5" />
@@ -150,8 +149,9 @@ export function Header() {
                     </Button>
                     <SettingsPanel />
                   </>
+                ) : (
+                  <GlobalSettingsMenu />
                 )}
-                {!isHomePage && <GlobalSettingsMenu />}
                 <ModeToggle />
                 <Button variant="ghost" size="icon" onClick={logout}>
                   <LogOut className="h-5 w-5" />
