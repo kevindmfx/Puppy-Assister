@@ -13,6 +13,16 @@ import { Sheet, SheetContent, SheetTrigger, SheetClose, SheetTitle } from '@/com
 import { Separator } from '../ui/separator';
 import { GlobalSettingsMenu } from '../global-settings-menu';
 
+const toolLinks = [
+  { href: '/prompt-generator', label: 'Otimizador de prompts', icon: Wand2 },
+  { href: '/scene-generator', label: 'Gerador de Cenas', icon: Film },
+];
+
+const aiLinks: any[] = [
+  // Futuros links de IA serão adicionados aqui
+];
+
+
 export function Header() {
   const { isAuthenticated, logout } = useAuth();
   const { showTutorial } = useTutorial();
@@ -20,15 +30,6 @@ export function Header() {
 
   const isGeneratorPage = pathname === '/prompt-generator' || pathname === '/scene-generator';
   const isHomePage = pathname === '/';
-
-  const toolLinks = [
-    { href: '/prompt-generator', label: 'Otimizador de prompts', icon: Wand2 },
-    { href: '/scene-generator', label: 'Gerador de Cenas', icon: Film },
-  ];
-
-  const aiLinks: any[] = [
-    // Futuros links de IA serão adicionados aqui
-  ];
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">

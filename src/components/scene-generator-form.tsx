@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, memo } from "react";
+import { useState, useMemo, memo, useCallback } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, useFieldArray } from "react-hook-form";
 import * as z from "zod";
@@ -136,6 +136,8 @@ const tutorialSteps = [
     },
   ];
 
+const isNotApplicable = (value: string | undefined) => !value || value === 'off';
+
 export function SceneGeneratorForm() {
   const { toast } = useToast();
   const { sceneOptions } = useOptions();
@@ -145,7 +147,7 @@ export function SceneGeneratorForm() {
   const [hasCopiedJson, setHasCopiedJson] = useState(false);
   const [hasCopiedFullPrompt, setHasCopiedFullPrompt] = useState(false);
 
-  const { sceneSchema, defaultSceneValues, formSchema } = useMemo(() => {
+  const { formSchema, defaultSceneValues } = useMemo(() => {
     const sceneSchemaObject: { [key: string]: z.ZodType<any, any> } = {
         sceneName: z.string().optional(),
         prompt: z.string().min(1, "O prompt da cena é obrigatório."),
@@ -188,9 +190,7 @@ export function SceneGeneratorForm() {
   
   const watchedScenes = form.watch("scenes");
 
-  const isNotApplicable = (value: string | undefined) => !value || value === 'off';
-
-  const generateJsonOutput = (values: FormValues) => {
+  const generateJsonOutput = useCallback((values: FormValues) => {
     const scenesData: Record<string, any> = {};
 
     values.scenes.forEach((scene, index) => {
@@ -213,33 +213,33 @@ export function SceneGeneratorForm() {
     });
     
     return JSON.stringify(scenesData, null, 2);
-  };
+  }, [sceneOptions]);
 
-  const saveToHistory = (output: string) => {
+  const saveToHistory = useCallback((output: string) => {
     addHistoryItem({
       type: 'scene',
       content: output,
     });
-  }
+  }, [addHistoryItem]);
 
-  function onJsonSubmit(values: FormValues) {
+  const onJsonSubmit = useCallback((values: FormValues) => {
     const generatedOutput = generateJsonOutput(values);
     setJsonOutput(generatedOutput);
     setFullPromptOutput("");
     setHasCopiedJson(false);
     saveToHistory(generatedOutput);
-  }
+  }, [generateJsonOutput, saveToHistory]);
 
-  function onFullPromptSubmit(values: FormValues) {
+  const onFullPromptSubmit = useCallback((values: FormValues) => {
     const jsonString = generateJsonOutput(values);
     const fullPrompt = `${fullPromptPrefix}\n\n${jsonString}`;
     setFullPromptOutput(fullPrompt);
     setJsonOutput("");
     setHasCopiedFullPrompt(false);
     saveToHistory(jsonString);
-  }
+  }, [generateJsonOutput, saveToHistory]);
 
-  const handleCopy = (type: 'json' | 'full') => {
+  const handleCopy = useCallback((type: 'json' | 'full') => {
     const textToCopy = type === 'json' ? jsonOutput : fullPromptOutput;
     navigator.clipboard.writeText(textToCopy).then(() => {
         if (type === 'json') {
@@ -254,9 +254,9 @@ export function SceneGeneratorForm() {
             description: "O resultado foi copiado para a área de transferência.",
         });
     });
-  };
+  }, [jsonOutput, fullPromptOutput, toast]);
 
-  const addScene = () => {
+  const addScene = useCallback(() => {
     if (fields.length < 8) {
       append(defaultSceneValues);
     } else {
@@ -266,7 +266,7 @@ export function SceneGeneratorForm() {
             description: "Você só pode adicionar até 8 cenas."
         })
     }
-  }
+  }, [fields.length, append, defaultSceneValues, toast]);
 
   return (
     <>

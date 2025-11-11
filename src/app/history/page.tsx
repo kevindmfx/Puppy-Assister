@@ -14,20 +14,20 @@ import {
   TableRow,
 } from "@/components/ui/table"
 
-export default function HistoryPage() {
-  const { history, getPromptSnippet } = useHistory();
-
-  const formatHistoryDate = (date: string) => {
+const formatHistoryDate = (date: string) => {
     return new Date(date).toLocaleString('pt-BR', {
       dateStyle: 'medium',
       timeStyle: 'short'
     });
-  };
+};
 
-  const truncateText = (text: string, length = 80) => {
+const truncateText = (text: string, length = 80) => {
     if (text.length <= length) return text;
     return text.substring(0, length) + '...';
-  }
+};
+
+export default function HistoryPage() {
+  const { history, getPromptSnippet } = useHistory();
 
   return (
     <div className="container py-12 w-full max-w-5xl">

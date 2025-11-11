@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, memo } from "react";
+import { useState, useMemo, memo, useCallback } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -96,7 +96,7 @@ DynamicSelectField.displayName = 'DynamicSelectField';
 const tutorialSteps = [
     {
       target: ".prompt-title",
-      content: "Bem-vindo ao Gerador de Prompts para Imagens! Esta ferramenta ajuda você a criar prompts detalhados para IAs de geração de imagem.",
+      content: "Bem-vindo ao Otimizador de prompts! Esta ferramenta ajuda você a criar prompts detalhados para IAs de geração de imagem.",
     },
     {
       target: ".base-prompt-input",
@@ -115,6 +115,8 @@ const tutorialSteps = [
       content: "Quando terminar, clique aqui para gerar seu prompt final!",
     },
 ];
+
+const isNotApplicable = (value: string | undefined) => !value || value === 'off';
 
 export function VisionWeaverForm() {
   const { toast } = useToast();
@@ -151,9 +153,7 @@ export function VisionWeaverForm() {
     defaultValues: defaultValues,
   });
   
-  const isNotApplicable = (value: string | undefined) => !value || value === 'off';
-
-  const generateMidjourneyPrompt = (values: FormValues) => {
+  const generateMidjourneyPrompt = useCallback((values: FormValues) => {
     let prompt = values.basePrompt;
     
     promptOptions.forEach(option => {
@@ -169,9 +169,9 @@ export function VisionWeaverForm() {
     });
 
     return prompt.trim();
-  };
+  }, [promptOptions]);
   
-  const generateJsonOutput = (values: FormValues) => {
+  const generateJsonOutput = useCallback((values: FormValues) => {
     const { basePrompt, outputType, ...rest } = values;
     const parameters: Record<string, string> = {};
     
@@ -188,15 +188,14 @@ export function VisionWeaverForm() {
         parameters: parameters,
     };
     return JSON.stringify(promptData, null, 2);
-  };
+  }, [promptOptions]);
 
-  function onSubmit(values: FormValues) {
+  const onSubmit = useCallback((values: FormValues) => {
     let generatedOutput = "";
     let historyContent = "";
 
     if (values.outputType === 'midjourney') {
         generatedOutput = generateMidjourneyPrompt(values);
-        // For midjourney, we still save a JSON structure for consistency in history
         const { basePrompt, outputType, ...rest } = values;
         const parameters: Record<string, string> = {};
         promptOptions.forEach(option => {
@@ -219,9 +218,9 @@ export function VisionWeaverForm() {
     
     setOutput(generatedOutput);
     setHasCopied(false);
-  }
+  }, [generateMidjourneyPrompt, generateJsonOutput, addHistoryItem, promptOptions]);
 
-  const handleCopy = () => {
+  const handleCopy = useCallback(() => {
     navigator.clipboard.writeText(output).then(() => {
       setHasCopied(true);
       toast({
@@ -230,7 +229,7 @@ export function VisionWeaverForm() {
       });
       setTimeout(() => setHasCopied(false), 2000);
     });
-  };
+  }, [output, toast]);
 
   return (
     <>

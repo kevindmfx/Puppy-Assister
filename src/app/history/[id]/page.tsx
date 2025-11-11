@@ -1,12 +1,19 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useHistory, HistoryItem } from "@/context/history-context";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Clipboard, ClipboardCheck, Wand2, Film } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+
+const formatHistoryDate = (date: string) => {
+    return new Date(date).toLocaleString('pt-BR', {
+      dateStyle: 'long',
+      timeStyle: 'short'
+    });
+  };
 
 export default function HistoryDetailPage() {
   const router = useRouter();
@@ -26,7 +33,7 @@ export default function HistoryDetailPage() {
     }
   }, [id, getHistoryItem]);
   
-  const handleCopy = () => {
+  const handleCopy = useCallback(() => {
     if (!item) return;
     navigator.clipboard.writeText(item.content).then(() => {
       setHasCopied(true);
@@ -36,14 +43,7 @@ export default function HistoryDetailPage() {
       });
       setTimeout(() => setHasCopied(false), 2000);
     });
-  };
-
-  const formatHistoryDate = (date: string) => {
-    return new Date(date).toLocaleString('pt-BR', {
-      dateStyle: 'long',
-      timeStyle: 'short'
-    });
-  };
+  }, [item, toast]);
 
   if (!item) {
     return (
